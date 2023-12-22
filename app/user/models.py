@@ -34,7 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """User in the system."""
 
     phone = PhoneNumberField(unique=True)
-    email = models.EmailField(max_length=255, unique=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -44,3 +44,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "phone"
+
+    def __str__(self):
+        return str(self.phone)
