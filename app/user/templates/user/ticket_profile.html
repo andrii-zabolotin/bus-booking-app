@@ -1,0 +1,197 @@
+<div class="container p-0 mb-5 border border-primary rounded shadow-sm ">
+    <div class="container rounded p-3 bg-body ">
+        <div class="row">
+            <div class="col"> <!-- Зона информации-->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-6"> <!-- Время -->
+                                        <span class="fs-3">{{dict.trip.timedate_departure|time}}</span>
+                                    </div>
+                                    <div class="col-6"> <!-- Дата -->
+                                        <span class="badge bg-light text-dark"><span class="fw-light fs-6">{{dict.trip.timedate_departure | date:"j b."}}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex justify-content-center text-nowrap"> <!-- Время в дороге -->
+                                <span class="fw-light fs-6">{{dict.trip.timedate_arrival|timeuntil:dict.trip.timedate_departure}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-5"> <!-- Город посадки -->
+                                {{dict.trip.start_point}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-6 fw-lighter"> <!-- Информация про место посадки -->
+                                <div class="span">
+                                    {{dict.trip.departure_station.station}},
+                                    {{dict.trip.departure_station.street_type|lower}}
+                                    {{dict.trip.departure_station.street}},
+                                    {{dict.trip.departure_station.number}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-3"> <!-- Время приезда -->
+                                <span class="fs-3">{{dict.trip.timedate_arrival|time}}</span>
+                            </div>
+                            <div class="col-3"> <!-- Дата Приезда -->
+                                <span class="badge bg-light text-dark"><span class="fw-light fs-6">{{dict.trip.timedate_arrival | date:"j b."}}</span>
+                            </div>
+                        </div>
+                        <div class="row"> <!-- Город прибытия -->
+                            <div class="col fs-5">
+                                {{dict.trip.end_point}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-6 fw-lighter"> <!-- Информация про место высадки -->
+                                <div class="span">
+                                    {{dict.trip.arrival_station.station}}
+                                    {{dict.trip.arrival_station.street_type|lower}}
+                                    {{dict.trip.arrival_station.street}},
+                                    {{dict.trip.arrival_station.number}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container rounded px-3 py-1 bg-light"> <!-- Информация про перевозчика -->
+        <div class="row">
+            <div class="col-5">
+                    Перевізник: {{dict.trip.bus.company}}
+            </div>
+            <div class="col-4">
+                    Автобус: {{dict.trip.bus.brand}} {{dict.trip.bus.licence_plate}}
+            </div>
+            <div class="col d-flex justify-content-end">
+                <a class="dropdown-toggle" data-bs-toggle="collapse" href="#passegers{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Білети
+                 </a>
+            </div>
+            <div class="col d-flex justify-content-start">
+                <a class="dropdown-toggle" data-bs-toggle="collapse" href="#detail{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Подробиці
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="collapse" id="passegers{{forloop.counter}}">
+        <div class="card-body bg-body rounded-bottom">
+            <ul style="list-style-type: none; padding: 0px">
+                {% for ticket in dict.tickets %}
+                    <li><h5>Пасажир №{{ forloop.counter }}</h5></li>
+                    <li>Ім'я: {{ ticket.first_name }}</li>
+                    <li>Фамілія: {{ ticket.last_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="collapse" id="detail{{forloop.counter}}"> <!-- Подробиці -->
+        <div class="card-body bg-body rounded-bottom">
+            <ul style="list-style-type: none; padding: 0px">
+                <ul class="nav nav-pills mb-2" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-route-tab" data-bs-toggle="pill" data-bs-target="#pills-route" type="button" role="tab" aria-controls="pills-route" aria-selected="true">Маршрут</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-carrier-tab" data-bs-toggle="pill" data-bs-target="#pills-carrier" type="button" role="tab" aria-controls="pills-carrier" aria-selected="false">Перевізник</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-bus-tab" data-bs-toggle="pill" data-bs-target="#pills-bus" type="button" role="tab" aria-controls="pills-bus" aria-selected="false">Автобус</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-route" role="tabpanel" aria-labelledby="pills-route-tab"> <!-- Вкладка Маршрут-->
+                        <div class="row ">
+                            <div class="col">
+                                <span>
+                                    Рейс <span class="fw-bold">{{dict.trip.start_point.city}}</span> - <span class="fw-bold">{{dict.trip.end_point.city}}</span>, на <span class="fw-bold">{{dict.trip.timedate_departure}}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                Час в дорозі: <span class="fw-light">{{dict.trip.timedate_arrival|timeuntil:dict.trip.timedate_departure}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <span class="fw-bold">{{dict.trip.timedate_departure|time}}</span>
+                            </div>
+                            <div class="col">
+                                <span class="fw-bold">{{dict.trip.start_point.city}}</span>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-1">
+                                <span class="fw-light">{{dict.trip.timedate_departure | date:"j b."}}</span>
+                            </div>
+                            <div class="col">
+                                <span class="fw-light">
+                                    {{dict.trip.departure_station.station}}
+                                    {{dict.trip.departure_station.street_type|lower}}
+                                    {{dict.trip.departure_station.street}},
+                                    {{dict.trip.departure_station.number}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <span class="fw-bold">{{dict.trip.timedate_arrival|time}}</span>
+                            </div>
+                            <div class="col">
+                                <span class="fw-bold">{{dict.trip.end_point.city}}</span>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-1">
+                                <span class="fw-light">{{dict.trip.timedate_arrival| date:"j b."}}</span>
+                            </div>
+                            <div class="col">
+                                <span class="fw-light">
+                                    {{dict.trip.arrival_station.station}}
+                                    {{dict.trip.arrival_station.street_type|lower}}
+                                    {{dict.trip.arrival_station.street}},
+                                    {{dict.trip.arrival_station.number}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-carrier" role="tabpanel" aria-labelledby="pills-carrier-tab"> <!-- Вкладка Перевізник-->
+                        <div class="row">
+                            <div class="col">
+                                Перевізник: <span class="fw-light">{{dict.trip.bus.company}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-bus" role="tabpanel" aria-labelledby="pills-bus-tab"> <!-- Вкладка Автобус-->
+                        <div class="row">
+                            <div class="col">
+                                Кількість місць: <span class="fw-light">{{dict.trip.bus.number_of_seats}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                Реєстраційний номер: <span class="fw-light">{{dict.trip.bus.licence_plate}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                               Марка: <span class="fw-light">{{dict.trip.bus.brand}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ul>
+        </div>
+    </div>
+</div>

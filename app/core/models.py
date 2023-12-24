@@ -1,16 +1,21 @@
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 from user.models import User
 
 
 class Company(models.Model):
     class Meta:
-        verbose_name = _("Компанія")
-        verbose_name_plural = _("Компанії")
+        verbose_name = _("Перевізник")
+        verbose_name_plural = _("Перевізники")
 
     company_name = models.CharField(max_length=255, verbose_name=_("Назва компанії"))
     slug = models.SlugField(unique=True, db_index=True)
+
+    def __str__(self):
+        return self.company_name
 
 
 class Brand(models.Model):
@@ -20,13 +25,8 @@ class Brand(models.Model):
 
     brand = models.CharField(max_length=255, verbose_name=_("Марка авто"))
 
-
-class Station(models.Model):
-    class Meta:
-        verbose_name = _("Станція")
-        verbose_name_plural = _("Станції")
-
-    station = models.CharField(max_length=255, verbose_name=_("Станція"))
+    def __str__(self):
+        return self.brand
 
 
 class City(models.Model):
@@ -37,6 +37,37 @@ class City(models.Model):
     city = models.CharField(max_length=255, verbose_name=_("Місто"))
     region = models.CharField(max_length=255, verbose_name=_("Область"))
     country = models.CharField(max_length=255, verbose_name=_("Країна"))
+
+    def __str__(self):
+        return f"{self.city}, {self.region} область, {self.country}"
+
+
+class Station(models.Model):
+    class Meta:
+        verbose_name = _("Станція")
+        verbose_name_plural = _("Станції")
+
+    station = models.CharField(max_length=255, verbose_name=_("Станція"))
+    street_type = models.CharField(
+        max_length=255, verbose_name=_("Вулиця/Провулок...."), null=True
+    )
+    street = models.CharField(max_length=255, verbose_name=_("Назва"), null=True)
+    number = models.IntegerField(null=True)
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, verbose_name=_("Місто"), null=True
+    )
+
+    def __str__(self):
+        return f"{self.station}, {self.street_type} {self.street}, {self.number}, {self.city.city}, {self.city.region} {_('область')}, {self.city.country}"
+
+
+class Buyer(models.Model):
+    class Meta:
+        verbose_name = _("Покупець")
+        verbose_name_plural = _("Покупці")
+
+    phone = PhoneNumberField(verbose_name=_("Номер телефону"))
+    email = models.EmailField(max_length=255, verbose_name=_("E-mail"))
 
 
 class Partner(models.Model):
@@ -50,6 +81,9 @@ class Partner(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name=_("Користувач")
     )
+
+    def __str__(self):
+        return f"{self.company} {self.user.phone}"
 
 
 class Bus(models.Model):
@@ -66,17 +100,20 @@ class Bus(models.Model):
         Company, on_delete=models.PROTECT, verbose_name=_("Компанія")
     )
 
+    def __str__(self):
+        return f"{self.licence_plate}, {self.company}"
+
 
 class Trip(models.Model):
     class Meta:
         verbose_name = _("Подорож")
         verbose_name_plural = _("Подорожі")
 
-    timedate_departure = models.TimeField(verbose_name=_("Час/Дата відправки"))
-    timedate_arrival = models.TimeField(verbose_name=_("Час/Дата приїзду"))
+    timedate_departure = models.DateTimeField(verbose_name=_("Час/Дата відправки"))
+    timedate_arrival = models.DateTimeField(verbose_name=_("Час/Дата приїзду"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.IntegerField(verbose_name=_("Ціна"))
     bus = models.ForeignKey(Bus, on_delete=models.PROTECT, verbose_name=_("Автобус"))
     departure_station = models.ForeignKey(
         Station,
@@ -93,15 +130,21 @@ class Trip(models.Model):
     start_point = models.ForeignKey(
         City,
         on_delete=models.PROTECT,
-        verbose_name="Город отправки",
+        verbose_name=_("Місто відправки"),
         related_name="start_point_city",
     )
     end_point = models.ForeignKey(
         City,
         on_delete=models.PROTECT,
-        verbose_name="Точка назначения",
+        verbose_name=_("Точка призначення"),
         related_name="end_point_city",
     )
+
+    def __str__(self):
+        return f"{self.timedate_departure.date()} {self.timedate_departure.time().strftime('%H:%M')} {self.bus} ({self.start_point} - {self.end_point})"
+
+    def get_absolute_url(self):
+        return reverse("core:trip", kwargs={"trip_pk": self.pk})
 
 
 class Ticket(models.Model):
@@ -111,10 +154,16 @@ class Ticket(models.Model):
 
     first_name = models.CharField(max_length=255, blank=False, verbose_name=_("Ім'я"))
     last_name = models.CharField(max_length=255, blank=False, verbose_name=_("Фамілія"))
+    buyer = models.ForeignKey(
+        Buyer, on_delete=models.CASCADE, verbose_name=_("Покупець")
+    )
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name=_("Пользователь")
+        User, on_delete=models.CASCADE, verbose_name=_("Користувач")
     )
     trip = models.ForeignKey(Trip, on_delete=models.PROTECT, verbose_name=_("Поездка"))
     purchase_at = models.DateTimeField(
         auto_now_add=True, verbose_name=_("Дата покупки")
     )
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}, {self.user.phone}, {self.trip.start_point} - {self.trip.end_point}"

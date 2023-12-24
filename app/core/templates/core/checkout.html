@@ -1,0 +1,26 @@
+{% extends  'core/base.html' %}
+
+{% block content %}
+<h2>Оформлення квитка</h2>
+<span style="font-size: 16px">Рейс №{{trip.pk}}, за маршрутом <strong>{{trip.start_point}} - {{trip.end_point}}</strong>
+    <strong>{{trip.timedate_departure|date}}</strong>о <strong>{{trip.timedate_departure|time}}</strong></span> <br>
+<span style="font-size: 16px">Автобус: <strong>{{trip.bus.brand}} {{trip.bus.vin}}</strong></span>
+
+<form method="post" action="{% url 'core:checkout' trip_pk=trip.pk %}">
+    {% csrf_token %}
+
+    <br>
+    <!-- Passenger form -->
+    {% for form in passenger_forms %}
+    <h4>Пасажир №{{forloop.counter}}</h4>
+    {{ form.as_p }}
+    {% endfor %}
+
+    <br>
+    <h4>Інформація про покупця</h4>
+    <!-- Buyer form -->
+    {{ buyer_form.as_p }}
+    <span><h4>{{ price }}грн</h4></span>
+    <button type="submit">Купить билеты</button>
+</form>
+{% endblock %}

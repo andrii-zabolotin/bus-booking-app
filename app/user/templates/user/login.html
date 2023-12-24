@@ -1,0 +1,10 @@
+{% extends  'user/base.html' %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div>{{ form.non_field_errors }}</div>
+    {{ form.as_p }}
+    <button type="submit">Увійти</button>
+</form>
+{% endblock %}

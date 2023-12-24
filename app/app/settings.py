@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "user.apps.UserConfig",
     "core.apps.CoreConfig",
     "phonenumber_field",
+    "bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,11 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "core", "templates", "core"),
+            os.path.join(BASE_DIR, "user", "templates", "user"),
+            os.path.join(BASE_DIR, "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -127,3 +132,4 @@ STATICFILES_DIRS = []
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "user.User"
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
