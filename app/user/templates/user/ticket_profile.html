@@ -1,4 +1,4 @@
-<div class="container p-0 mb-5 border border-primary rounded shadow-sm ">
+<div class="container p-0 mb-5 border border-warning rounded shadow-sm ">
     <div class="container rounded p-3 bg-body ">
         <div class="row">
             <div class="col"> <!-- Зона информации-->
@@ -73,12 +73,12 @@
                     Автобус: {{dict.trip.bus.brand}} {{dict.trip.bus.licence_plate}}
             </div>
             <div class="col d-flex justify-content-end">
-                <a class="dropdown-toggle" data-bs-toggle="collapse" href="#passegers{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                <a class="dropdown-toggle text-danger" data-bs-toggle="collapse" href="#passegers{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none">
                     Білети
                  </a>
             </div>
             <div class="col d-flex justify-content-start">
-                <a class="dropdown-toggle" data-bs-toggle="collapse" href="#detail{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                <a class="dropdown-toggle text-danger" data-bs-toggle="collapse" href="#detail{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none">
                     Подробиці
                 </a>
             </div>

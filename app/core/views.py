@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.utils.translation import gettext_lazy as _
+
 from core.forms import *
 from core.models import *
 from .utils import *
@@ -6,7 +8,7 @@ from .utils import *
 
 def home_page(request):
     queryset = None
-    context = {}
+    context = {"title": "BusJoy"}
 
     if request.method == "POST":
         form = CitySelectionForm(request.POST)
@@ -22,6 +24,7 @@ def home_page(request):
                     "start_point": start_point,
                     "end_point": end_point,
                     "date": date,
+                    "title": _(f"{start_point.city} - {end_point.city}"),
                 }
             )
             if date == datetime.now().date():
@@ -56,42 +59,6 @@ def home_page(request):
     )
 
     return render(request, "core/index.html", context=context)
-
-
-# class TripPage(DetailView, FormMixin):
-#     model = Trip
-#     template_name = "booking/trip.html"
-#     context_object_name = "trip"
-#     form_class = TicketPurchase
-#     pk_url_kwarg = "trip_pk"
-#     success_url = reverse_lazy('user_app:profile')
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["title"] = context["trip"].timedate_departure.date()
-#         context["passengers_quantity_range"] = range(self.request.session.get('passengers_quantity', 1))
-#         return context
-#
-#     def post(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         form = self.get_form()
-#         if form.is_valid():
-#             return self.form_valid(form)
-#         else:
-#             return self.form_invalid(form)
-#
-#     def form_valid(self, form):
-#         # Здесь вы можете добавить логику для сохранения данных формы
-#         # например, создание объекта Ticket и сохранение его в базе данных
-#         ticket = form.save(commit=False)
-#         ticket.trip = self.object
-#         ticket.user = self.request.user
-#         ticket.save()
-#         return super().form_valid(form)
-#
-#     def form_invalid(self, form):
-#         # Здесь вы можете добавить логику для случая, когда форма недействительна
-#         return self.render_to_response(self.get_context_data(form=form))
 
 
 def checkout(request, trip_pk):
@@ -138,6 +105,7 @@ def checkout(request, trip_pk):
         context={
             "buyer_form": buyer_form,
             "passenger_forms": passenger_forms,
+            "title": _("Сплата"),
             "trip": trip,
             "price": price,
         },

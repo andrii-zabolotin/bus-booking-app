@@ -10,6 +10,16 @@
   max-height: 100%;
     }
 }
+
+.collapse .nav .nav-link{
+    color: #d73446 !important;
+}
+
+.collapse .nav .active{
+    color: white !important;
+    background-color: #d73446 !important;
+}
+
 .form-select,
 .form-control,
 a.active.focus,

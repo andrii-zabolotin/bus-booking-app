@@ -5,7 +5,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView
+from django.utils.translation import gettext_lazy as _
 
 from core.models import Ticket, Trip
 from user.forms import *
@@ -22,6 +23,7 @@ class RegisterUser(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["title"] = _("Реєстрація")
         return context
 
 
@@ -34,6 +36,7 @@ class LoginUser(LoginView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["title"] = _("Авторизація")
         return context
 
 
@@ -49,8 +52,7 @@ def user_profile(request):
         )
         .values_list("trip", flat=True)
         .distinct()
-    )  # User's trips list
-    print(future_user_trips)
+    )
 
     trips_with_tickets = []
     for trip in future_user_trips:
@@ -64,6 +66,7 @@ def user_profile(request):
         context={
             "future_trips_with_tickets": trips_with_tickets,
             "active_tab": "profile",
+            "title": _("Майбутні поїздки"),
         },
     )
 
@@ -82,7 +85,11 @@ def user_contact(request):
     return render(
         request,
         "user/contact.html",
-        context={"form": form, "active_tab": "contact"},
+        context={
+            "form": form,
+            "active_tab": "contact",
+            "title": _("Контактна інформація"),
+        },
     )
 
 
@@ -93,7 +100,7 @@ def user_history(request):
         )
         .values_list("trip", flat=True)
         .distinct()
-    )  # User's trips list
+    )
 
     trips_with_tickets = []
     for trip in user_past_trips:
@@ -107,5 +114,6 @@ def user_history(request):
         context={
             "past_trips_with_tickets": trips_with_tickets,
             "active_tab": "history",
+            "title": _("Минулі поїздки"),
         },
     )
