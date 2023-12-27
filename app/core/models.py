@@ -154,9 +154,6 @@ class Ticket(models.Model):
 
     first_name = models.CharField(max_length=255, blank=False, verbose_name=_("Ім'я"))
     last_name = models.CharField(max_length=255, blank=False, verbose_name=_("Фамілія"))
-    buyer = models.ForeignKey(
-        Buyer, on_delete=models.CASCADE, verbose_name=_("Покупець")
-    )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name=_("Користувач")
     )

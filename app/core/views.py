@@ -1,8 +1,10 @@
+from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import *
 from core.models import *
+from user.forms import RegisterClientForm
 from .utils import *
 
 
@@ -63,40 +65,44 @@ def home_page(request):
 
 def checkout(request, trip_pk):
     trip = Trip.objects.get(pk=trip_pk)
-    price = trip.price * request.session.get("passengers_quantity", 1)
+    passengers_quantity = request.session.get("passengers_quantity", 1)
+    price = trip.price * passengers_quantity
+
     if request.method == "POST":
-        buyer_form = BuyerInfoForm(request.POST)
         passenger_forms = [
             PassagerInfoForm(request.POST, prefix=f"passenger_{i}")
-            for i in range(request.session.get("passengers_quantity", 1))
+            for i in range(passengers_quantity)
         ]
+        if not request.user.is_authenticated:
+            buyer_form = RegisterClientForm(request.POST)
+            if buyer_form.is_valid() and all(
+                form.is_valid() for form in passenger_forms
+            ):
+                new_user = buyer_form.save()
 
-        if buyer_form.is_valid() and all(form.is_valid() for form in passenger_forms):
-            # Создание объекта BuyerInfo
-            buyer_data = buyer_form.cleaned_data
-            if Buyer.objects.filter(
-                email=buyer_data["email"], phone=buyer_data["phone"]
-            ).exists():
-                buyer = Buyer.objects.get(
-                    email=buyer_data["email"], phone=buyer_data["phone"]
-                )
-            else:
-                buyer = Buyer.objects.create(**buyer_data)
+                for i, form in enumerate(passenger_forms):
+                    ticket_data = form.cleaned_data  # first_name, last_name
+                    ticket_data["user"] = new_user
+                    ticket_data["trip_id"] = trip_pk
+                    Ticket.objects.create(**ticket_data)
+                    login(request, new_user)
 
-            for i, form in enumerate(passenger_forms):
-                ticket_data = form.cleaned_data  # first_name, last_name
-                ticket_data["user"] = request.user
-                ticket_data["buyer_id"] = buyer.pk
-                ticket_data["trip_id"] = trip_pk
-                Ticket.objects.create(**ticket_data)
+        else:
+            if all(form.is_valid() for form in passenger_forms):
+                for i, form in enumerate(passenger_forms):
+                    ticket_data = form.cleaned_data  # first_name, last_name
+                    ticket_data["user"] = request.user
+                    ticket_data["trip_id"] = trip_pk
+                    Ticket.objects.create(**ticket_data)
 
-            return redirect("user:profile")  # Замените на свой URL успеха
+        return redirect("user:profile")
 
     else:
-        buyer_form = BuyerInfoForm()
+        if not request.user.is_authenticated:
+            buyer_form = RegisterClientForm()
         passenger_forms = [
             PassagerInfoForm(prefix=f"passenger_{i}")
-            for i in range(request.session.get("passengers_quantity", 1))
+            for i in range(passengers_quantity)
         ]
 
     return render(
@@ -110,3 +116,54 @@ def checkout(request, trip_pk):
             "price": price,
         },
     )
+
+
+# def checkout(request, trip_pk):
+#     trip = Trip.objects.get(pk=trip_pk)
+#     price = trip.price * request.session.get("passengers_quantity", 1)
+#     if request.method == "POST":
+#         buyer_form = BuyerInfoForm(request.POST)
+#         passenger_forms = [
+#             PassagerInfoForm(request.POST, prefix=f"passenger_{i}")
+#             for i in range(request.session.get("passengers_quantity", 1))
+#         ]
+#
+#         if buyer_form.is_valid() and all(form.is_valid() for form in passenger_forms):
+#             # Создание объекта BuyerInfo
+#             buyer_data = buyer_form.cleaned_data
+#             if Buyer.objects.filter(
+#                 email=buyer_data["email"], phone=buyer_data["phone"]
+#             ).exists():
+#                 buyer = Buyer.objects.get(
+#                     email=buyer_data["email"], phone=buyer_data["phone"]
+#                 )
+#             else:
+#                 buyer = Buyer.objects.create(**buyer_data)
+#
+#             for i, form in enumerate(passenger_forms):
+#                 ticket_data = form.cleaned_data  # first_name, last_name
+#                 ticket_data["user"] = request.user
+#                 ticket_data["buyer_id"] = buyer.pk
+#                 ticket_data["trip_id"] = trip_pk
+#                 Ticket.objects.create(**ticket_data)
+#
+#             return redirect("user:profile")  # Замените на свой URL успеха
+#
+#     else:
+#         buyer_form = BuyerInfoForm()
+#         passenger_forms = [
+#             PassagerInfoForm(prefix=f"passenger_{i}")
+#             for i in range(request.session.get("passengers_quantity", 1))
+#         ]
+#
+#     return render(
+#         request,
+#         "checkout.html",
+#         context={
+#             "buyer_form": buyer_form,
+#             "passenger_forms": passenger_forms,
+#             "title": _("Сплата"),
+#             "trip": trip,
+#             "price": price,
+#         },
+#     )
