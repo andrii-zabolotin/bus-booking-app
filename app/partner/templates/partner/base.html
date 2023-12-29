@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load bootstrap5 %}
+    {% load static %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link type="text/css" href="{% static 'core/css/styles.css' %}" rel="stylesheet" />
+    <title>{{title}}</title>
+</head>
+<body>
+    {% include 'partials/nav-bar.html'%}
+    {% if user.is_authenticated %}
+        <div class="container">
+            <div class="row">
+              <div class="col">
+                  <nav class="navbar navbar-expand-lg navbar-light">
+                      <div class="container-fluid p-0">
+                          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<!--                              <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="#">Майбутні поїздки</a></li>-->
+<!--                              <li><a class="nav-link {% if active_tab == 'history' %}active border-bottom border-dark border-2{% endif %}" href="#">Історія поїздок</a></li>-->
+                              <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle {% if active_tab == 'bus' %}active border-bottom border-dark border-2{% endif %}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span>Автобуси</span>
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <li><a class="dropdown-item" href="{% url 'partner:bus_create'%}">Додати атобус</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:buses' %}">Переглянути наявні</a></li>
+                                    </ul>
+                              </li>
+                              <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle {% if active_tab == 'tris' %}active border-bottom border-dark border-2{% endif %}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span>Рейси</span>
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <li><a class="dropdown-item" href="{% url 'partner:trip_create'%}">Додати рейс</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:trips' %}">Переглянути наявні</a></li>
+                                    </ul>
+                              </li>
+                              <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:profile' %}">Контактна інформація</a></li>
+                          </ul>
+                      </div>
+                  </nav>
+              </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

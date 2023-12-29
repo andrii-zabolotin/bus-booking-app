@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
@@ -45,6 +46,7 @@ def logout_user(request):
     return redirect("core:home")
 
 
+@login_required(login_url="/user/login")
 def user_profile(request):
     future_user_trips = (
         Ticket.objects.filter(
@@ -71,6 +73,7 @@ def user_profile(request):
     )
 
 
+@login_required(login_url="/user/login")
 def user_contact(request):
     if request.method == "POST":
         form = AddEmailToUser(request.POST, instance=request.user)
@@ -93,6 +96,7 @@ def user_contact(request):
     )
 
 
+@login_required(login_url="/user/login")
 def user_history(request):
     user_past_trips = (
         Ticket.objects.filter(

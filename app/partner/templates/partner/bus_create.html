@@ -1,0 +1,34 @@
+{% extends  'partner/base.html' %}
+
+{% block content %}
+<form method="post" action="{% url 'partner:bus_create'%}">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col p-0"> <!-- Ошибка-->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger font-monospace p-0 pt-2" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-12">
+                <div class="row gx-0 justify-content-center">
+                    {% for f in form %}
+                    <div class="col-md-3 col-12"> <!-- Поля формы-->
+                            <div class="form-floating">
+                                {{ f }}
+                                <label for="floatingInputGrid">{{f.label}}</label>
+                            </div>
+                    </div>
+                    {% endfor %}
+                </div>
+        </div>
+        <div class="col-md-2 col-12 ps-md-0">
+            <button type="submit" class="btn btn-danger text-light w-100 h-100">Створити</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+

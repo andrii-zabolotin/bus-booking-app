@@ -24,7 +24,6 @@ class CityAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Company, CompanyAdmin)
-admin.site.register(Brand)
 admin.site.register(Station, StationAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Partner)

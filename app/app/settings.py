@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "user.apps.UserConfig",
     "core.apps.CoreConfig",
+    "partner.apps.PartnerConfig",
     "phonenumber_field",
     "bootstrap5",
 ]
@@ -61,6 +62,7 @@ TEMPLATES = [
         "DIRS": [
             os.path.join(BASE_DIR, "core", "templates", "core"),
             os.path.join(BASE_DIR, "user", "templates", "user"),
+            os.path.join(BASE_DIR, "partner", "templates", "partner"),
             os.path.join(BASE_DIR, "templates"),
         ],
         "APP_DIRS": True,

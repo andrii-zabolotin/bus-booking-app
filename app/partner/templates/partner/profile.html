@@ -1,0 +1,43 @@
+{% extends  'partner/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col shadow-sm p-3 bg-body rounded">
+            <div class="row">
+                <div class="col fs-4 mb-3">
+                    Компанія {{company.company_name}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">Телефен: {{user.phone}}</div>
+            </div>
+            <div class="row">
+                <div class="col">
+                {% if user.email%}
+                    Пошта: {{user.email}}
+                {% else %}
+                    Пошта: -
+                {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <!--div class="col shadow-sm p-3 bg-body rounded">
+            <form method="POST" action="{% url 'partner:profile'%}">
+                {% csrf_token %}
+                <div>{{ form.non_field_errors }}</div>
+                {% for f in form %}
+                    <div class="col">
+                        <div class="form-floating">
+                            {{ f }}
+                            <label for="floatingInputGrid">Змінити пошту:</label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                <button class="btn btn-primary btn-sm mt-2" type="submit">Зберегти</button>
+            </form>
+        </div-->
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends  'partner/base.html' %}
+
+{% block content %}
+<div class="container">
+    {% if bus_list %}
+        {% for bus in bus_list %}
+        <div class="row mb-4 rounded border">
+            <div class="col shadow-sm p-3 bg-body rounded">
+                <div class="row">
+                    <div class="col">
+                        Номер: {{bus.licence_plate}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        Бренд: {{bus.brand}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        Кількість місць: {{bus.number_of_seats}}
+                    </div>
+                </div>
+                {{bus.trip_count}}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="row">
+        <div class="col d-flex justify-content-center mt-3">
+            <span class="fs-4 fw-bold">Тут можуть бути ваші Автобуси</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-flex justify-content-center mt-3">
+            <a href="{% url 'partner:bus_create' %}"><button class="btn btn-danger text-light">Додати атобус</button></a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

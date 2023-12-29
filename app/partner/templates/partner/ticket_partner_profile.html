@@ -1,0 +1,78 @@
+<div class="container p-0 mb-5 border border-warning rounded shadow-sm ">
+    <div class="container rounded p-3 bg-body ">
+        <div class="row">
+            <div class="col"> <!-- Зона информации-->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-6"> <!-- Время -->
+                                        <span class="fs-3">{{trip.timedate_departure|time}}</span>
+                                    </div>
+                                    <div class="col-6"> <!-- Дата -->
+                                        <span class="badge bg-light text-dark"><span class="fw-light fs-6">{{trip.timedate_departure | date:"j b."}}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex justify-content-center text-nowrap"> <!-- Время в дороге -->
+                                <span class="fw-light fs-6">{{trip.timedate_arrival|timeuntil:trip.timedate_departure}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-5"> <!-- Город посадки -->
+                                {{trip.start_point}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-6 fw-lighter"> <!-- Информация про место посадки -->
+                                <div class="span">
+                                    {{trip.departure_station.station}},
+                                    {{trip.departure_station.street_type|lower}}
+                                    {{trip.departure_station.street}},
+                                    {{trip.departure_station.number}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-3"> <!-- Время приезда -->
+                                <span class="fs-3">{{trip.timedate_arrival|time}}</span>
+                            </div>
+                            <div class="col-3"> <!-- Дата Приезда -->
+                                <span class="badge bg-light text-dark"><span class="fw-light fs-6">{{trip.timedate_arrival | date:"j b."}}</span>
+                            </div>
+                        </div>
+                        <div class="row"> <!-- Город прибытия -->
+                            <div class="col fs-5">
+                                {{trip.end_point}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fs-6 fw-lighter"> <!-- Информация про место высадки -->
+                                <div class="span">
+                                    {{trip.arrival_station.station}}
+                                    {{trip.arrival_station.street_type|lower}}
+                                    {{trip.arrival_station.street}},
+                                    {{trip.arrival_station.number}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container rounded px-3 py-1 bg-light"> <!-- Информация про перевозчика -->
+        <div class="row">
+            <div class="col-5">
+                    Перевізник: {{trip.bus.company}}
+            </div>
+            <div class="col-4">
+                    Автобус: {{trip.bus.brand}} {{trip.bus.licence_plate}}
+            </div>
+        </div>
+    </div>
+</div>
+  

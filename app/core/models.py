@@ -18,17 +18,6 @@ class Company(models.Model):
         return self.company_name
 
 
-class Brand(models.Model):
-    class Meta:
-        verbose_name = _("Марка")
-        verbose_name_plural = _("Марки")
-
-    brand = models.CharField(max_length=255, verbose_name=_("Марка авто"))
-
-    def __str__(self):
-        return self.brand
-
-
 class City(models.Model):
     class Meta:
         verbose_name = _("Місто")
@@ -92,10 +81,10 @@ class Bus(models.Model):
         verbose_name_plural = _("Автобуси")
 
     licence_plate = models.CharField(
-        max_length=255, verbose_name=_("Реєстраційний номер")
+        max_length=255, verbose_name=_("Реєстраційний номер"), unique=True
     )
     number_of_seats = models.IntegerField(verbose_name=_("Кількість місць"))
-    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, verbose_name=_("Марка"))
+    brand = models.CharField(max_length=255, verbose_name=_("Опис"))
     company = models.ForeignKey(
         Company, on_delete=models.PROTECT, verbose_name=_("Компанія")
     )

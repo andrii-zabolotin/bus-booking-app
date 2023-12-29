@@ -19,7 +19,7 @@
                                         <span class="fw-bold">Партнер {{user.phone}}</span>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="{% url 'user:profile' %}">Адмін-панель</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:profile' %}">Адмін-панель</a></li>
                                         <li><a class="dropdown-item" href="{% url 'user:logout' %}">Вийти</a></li>
                                     </ul>
                                 {% else %}
@@ -32,7 +32,13 @@
                                     </ul>
                                 {% endif %}
                                 {% else %}
-                                    <a class="nav-link" href="{% url 'user:registration' %}">Реєстрація</a>
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span>Реєстрація</span>
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <li><a class="dropdown-item" href="{% url 'user:registration' %}">Реєстрація користувача</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:registration' %}">Реєстрація партнера</a></li>
+                                    </ul>
                                     <a class="nav-link" href="{% url 'user:login' %}">Логін</a>
                                 {% endif %}
                             </li>
