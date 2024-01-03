@@ -1,5 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
 from core.models import Bus, Company, Trip, Station, City
 
@@ -49,12 +52,11 @@ class CreateBusForm(forms.ModelForm):
         fields = ("licence_plate", "number_of_seats", "brand")
 
 
-class CreateTripForm(forms.ModelForm):
+class CreateUpdateTripForm(forms.ModelForm):
     timedate_departure = forms.DateTimeField(
         label=_("Дата/Час відправки"),
-        widget=forms.DateInput(
+        widget=DateTimePickerInput(
             attrs={
-                "type": "datetime-local",
                 "class": "form-control",
                 "id": "floatingSelect",
             }
@@ -62,9 +64,8 @@ class CreateTripForm(forms.ModelForm):
     )
     timedate_arrival = forms.DateTimeField(
         label=_("Дата/Час приїзду"),
-        widget=forms.DateInput(
+        widget=DateTimePickerInput(
             attrs={
-                "type": "datetime-local",
                 "class": "form-control",
                 "id": "floatingSelect",
             }
@@ -89,9 +90,9 @@ class CreateTripForm(forms.ModelForm):
             }
         ),
     )
-    arrival_station = forms.ModelChoiceField(
-        queryset=Station.objects.all(),
-        label=_("Станція прибуття"),
+    start_point = forms.ModelChoiceField(
+        queryset=City.objects.all(),
+        label=_("Місто відправки"),
         widget=forms.Select(
             attrs={
                 "class": "form-select",
@@ -99,9 +100,9 @@ class CreateTripForm(forms.ModelForm):
             }
         ),
     )
-    start_point = forms.ModelChoiceField(
-        queryset=City.objects.all(),
-        label=_("Місто відправки"),
+    arrival_station = forms.ModelChoiceField(
+        queryset=Station.objects.all(),
+        label=_("Станція прибуття"),
         widget=forms.Select(
             attrs={
                 "class": "form-select",
@@ -122,10 +123,19 @@ class CreateTripForm(forms.ModelForm):
 
     class Meta:
         model = Trip
-        fields = "__all__"
+        fields = [
+            "bus",
+            "start_point",
+            "departure_station",
+            "timedate_departure",
+            "end_point",
+            "arrival_station",
+            "timedate_arrival",
+            "price",
+        ]
 
     def __init__(self, user, *args, **kwargs):
-        super(CreateTripForm, self).__init__(*args, **kwargs)
+        super(CreateUpdateTripForm, self).__init__(*args, **kwargs)
         self.fields["bus"].queryset = Bus.objects.select_related("company").filter(
             company__partner__user=user
         )
@@ -135,3 +145,30 @@ class CreateTripForm(forms.ModelForm):
                 "id": "floatingSelect",
             }
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        timedate_departure = cleaned_data.get("timedate_departure")
+        timedate_arrival = cleaned_data.get("timedate_arrival")
+        departure_station = cleaned_data.get("departure_station")
+        arrival_station = cleaned_data.get("arrival_station")
+        end_point = cleaned_data.get("end_point")
+        start_point = cleaned_data.get("start_point")
+        price = cleaned_data.get("price")
+
+        if timedate_departure >= timedate_arrival:
+            raise ValidationError(
+                _("Дата приїзду повинна бути більша ніж дата від'їзду")
+            )
+
+        if departure_station.city != start_point:
+            raise ValidationError(
+                _("Станція від'їзду повинна бути розташована в місті від'їзду")
+            )
+
+        if arrival_station.city != end_point:
+            raise ValidationError(
+                _("Станція приїзду повинна бути розташована в місті приїзду")
+            )
+
+        return cleaned_data

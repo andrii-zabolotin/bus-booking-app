@@ -133,7 +133,7 @@ class Trip(models.Model):
         return f"{self.timedate_departure.date()} {self.timedate_departure.time().strftime('%H:%M')} {self.bus} ({self.start_point} - {self.end_point})"
 
     def get_absolute_url(self):
-        return reverse("core:trip", kwargs={"trip_pk": self.pk})
+        return reverse("partner:trip_update", kwargs={"trip_pk": self.pk})
 
 
 class Ticket(models.Model):

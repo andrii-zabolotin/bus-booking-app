@@ -1,4 +1,5 @@
 from django.contrib.auth import login
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 
@@ -167,3 +168,7 @@ def checkout(request, trip_pk):
 #             "price": price,
 #         },
 #     )
+
+
+def pageForbidden(request, exception):
+    return HttpResponseForbidden("Доступ заблоковано")

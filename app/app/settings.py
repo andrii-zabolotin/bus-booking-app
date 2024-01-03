@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "partner.apps.PartnerConfig",
     "phonenumber_field",
     "bootstrap5",
+    "bootstrap_datepicker_plus",
 ]
 
 MIDDLEWARE = [

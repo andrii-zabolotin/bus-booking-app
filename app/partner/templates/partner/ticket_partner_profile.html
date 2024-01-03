@@ -67,11 +67,16 @@
     <div class="container rounded px-3 py-1 bg-light"> <!-- Информация про перевозчика -->
         <div class="row">
             <div class="col-5">
-                    Перевізник: {{trip.bus.company}}
+                Перевізник: {{trip.bus.company}}
             </div>
             <div class="col-4">
-                    Автобус: {{trip.bus.brand}} {{trip.bus.licence_plate}}
+                Автобус: {{trip.bus.brand}} {{trip.bus.licence_plate}}
             </div>
+            {% if edit %}
+            <div class="col d-flex justify-content-center">
+                <a href="{{trip.get_absolute_url}}" class="text-danger" style="text-decoration: none">Редагувати</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

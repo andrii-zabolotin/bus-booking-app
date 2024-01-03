@@ -3,6 +3,7 @@
 <head>
     {% load bootstrap5 %}
     {% load static %}
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     <link type="text/css" href="{% static 'core/css/styles.css' %}" rel="stylesheet" />
@@ -34,7 +35,9 @@
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <li><a class="dropdown-item" href="{% url 'partner:trip_create'%}">Додати рейс</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'partner:trips' %}">Переглянути наявні</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:future_trips' %}">Майбутні рейси</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:past_trips' %}">Минулі рейси</a></li>
                                     </ul>
                               </li>
                               <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:profile' %}">Контактна інформація</a></li>
