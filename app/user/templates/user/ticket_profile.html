@@ -88,9 +88,11 @@
         <div class="card-body bg-body rounded-bottom">
             <ul style="list-style-type: none; padding: 0px">
                 {% for ticket in dict.tickets %}
-                    <li><h5>Пасажир №{{ forloop.counter }}</h5></li>
+                    <li><strong>Пасажир №{{ forloop.counter }}</strong></li>
+                    <li><small>Білет № {{ticket.pk}} </small></li>
                     <li>Ім'я: {{ ticket.first_name }}</li>
                     <li>Фамілія: {{ ticket.last_name }}</li>
+                    <li><a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a></li>
                 {% endfor %}
             </ul>
         </div>

@@ -41,9 +41,10 @@ class CitySelectionForm(forms.Form):
         widget=forms.DateInput(
             attrs={
                 "type": "date",
-                "class": "form-control",
+                "class": "form-control datepicker",
                 "id": "floatingInputGrid",
                 "min": datetime.now().date(),
+                "value": datetime.now().strftime("%Y-%m-%d"),
             }
         ),
     )

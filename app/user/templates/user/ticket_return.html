@@ -1,0 +1,5 @@
+{{ticket_pk}}
+<form method="post" action="{% url 'user:ticket_return' ticket_pk=ticket_pk %}">
+  {% csrf_token %}
+  <button type="submit">Submit</button>
+</form>

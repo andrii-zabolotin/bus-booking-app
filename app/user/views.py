@@ -4,7 +4,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.utils.translation import gettext_lazy as _
@@ -121,3 +121,17 @@ def user_history(request):
             "title": _("Минулі поїздки"),
         },
     )
+
+
+@login_required(login_url="/user/login")
+def ticker_return(request, ticket_pk):
+    ticket = get_object_or_404(Ticket, pk=ticket_pk)
+    if request.method == "POST":
+        if not ticket.returned:
+            ticket.returned = True
+            ticket.save()
+            return render(request, "confirm_return.html", {"ticket": ticket})
+        else:
+            return render(request, "already_returned.html", {"ticket": ticket})
+
+    return render(request, "user/ticket_return.html", context={"ticket_pk": ticket_pk})

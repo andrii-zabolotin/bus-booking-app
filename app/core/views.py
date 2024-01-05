@@ -1,7 +1,11 @@
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import DeleteView
 
 from core.forms import *
 from core.models import *
@@ -21,6 +25,9 @@ def home_page(request):
             date = form.cleaned_data["date"]
             passengers_quantity = form.cleaned_data["passengers_quantity"]
             request.session["passengers_quantity"] = passengers_quantity
+            request.session["start_point"] = start_point.pk
+            request.session["end_point"] = end_point.pk
+            request.session["date"] = str(date)
             current_time = datetime.now().time()
             context.update(
                 {
@@ -52,7 +59,27 @@ def home_page(request):
                 trip for trip in queryset if trip.remaining_seats >= passengers_quantity
             ]
     else:
-        form = CitySelectionForm()
+        passengers_quantity = request.session.get("passengers_quantity", None)
+        start_point = request.session.get("start_point", None)
+        end_point = request.session.get("end_point", None)
+        date = (
+            request.session.get("date")
+            if request.session.get("date")
+            and request.session.get("date") >= str(timezone.now().date())
+            else str(timezone.now().date())
+        )
+
+        if passengers_quantity and start_point and end_point and date:
+            form = CitySelectionForm(
+                initial={
+                    "date": date,
+                    "passengers_quantity": passengers_quantity,
+                    "start_point": start_point,
+                    "end_point": end_point,
+                }
+            )
+        else:
+            form = CitySelectionForm()
 
     context.update(
         {
@@ -85,8 +112,15 @@ def checkout(request, trip_pk):
                     ticket_data = form.cleaned_data  # first_name, last_name
                     ticket_data["user"] = new_user
                     ticket_data["trip_id"] = trip_pk
+                    ticket_data["payed"] = True
                     Ticket.objects.create(**ticket_data)
-                    login(request, new_user)
+
+                user = authenticate(
+                    request,
+                    username=new_user.phone,
+                    password=buyer_form.cleaned_data["password1"],
+                )
+                login(request, user)
 
         else:
             if all(form.is_valid() for form in passenger_forms):
@@ -94,6 +128,7 @@ def checkout(request, trip_pk):
                     ticket_data = form.cleaned_data  # first_name, last_name
                     ticket_data["user"] = request.user
                     ticket_data["trip_id"] = trip_pk
+                    ticket_data["payed"] = True
                     Ticket.objects.create(**ticket_data)
 
         return redirect("user:profile")
@@ -101,6 +136,8 @@ def checkout(request, trip_pk):
     else:
         if not request.user.is_authenticated:
             buyer_form = RegisterClientForm()
+        else:
+            buyer_form = None
         passenger_forms = [
             PassagerInfoForm(prefix=f"passenger_{i}")
             for i in range(passengers_quantity)

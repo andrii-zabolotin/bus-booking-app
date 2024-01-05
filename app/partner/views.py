@@ -181,9 +181,13 @@ class FutureTripView(TripBaseView):
     template_name = "partner/future_trips.html"
 
     def get_queryset(self):
-        return Trip.objects.select_related("bus__company").filter(
-            bus__company__partner__user=self.request.user,
-            timedate_departure__gt=datetime.now(),
+        return (
+            Trip.objects.select_related("bus__company")
+            .filter(
+                bus__company__partner__user=self.request.user,
+                timedate_departure__gt=datetime.now(),
+            )
+            .order_by("timedate_departure")
         )
 
     def get_context_data(self, **kwargs):
@@ -196,9 +200,13 @@ class PastTripView(TripBaseView):
     template_name = "partner/past_trips.html"
 
     def get_queryset(self):
-        return Trip.objects.select_related("bus__company").filter(
-            bus__company__partner__user=self.request.user,
-            timedate_departure__lt=datetime.now(),
+        return (
+            Trip.objects.select_related("bus__company")
+            .filter(
+                bus__company__partner__user=self.request.user,
+                timedate_departure__lt=datetime.now(),
+            )
+            .order_by("-timedate_departure")
         )
 
     def get_context_data(self, **kwargs):

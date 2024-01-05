@@ -26,6 +26,7 @@
 
 
 {% block search %}
+{{form.media}}
 <form method="post" action="{% url 'core:home'%}">
     {% csrf_token %}
     <div class="row">
