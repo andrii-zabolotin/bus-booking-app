@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction
-from django.db.models import Count, Sum, Min, Max
+from django.db.models import Count, Sum, Min, Max, Prefetch
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from slugify import slugify
@@ -87,6 +87,9 @@ class BusView(PartnerRequiredMixin, ListView):
         return context
 
     def get_revenue_dict(self, bus_list):
+        """
+        Returns dictionary with bus primary key as key and revenue as value
+        """
         return {
             bus.pk: Ticket.objects.filter(
                 trip__bus=bus, payed=True, trip__timedate_departure__lt=timezone.now()
@@ -96,6 +99,9 @@ class BusView(PartnerRequiredMixin, ListView):
         }
 
     def add_revenue_to_bus(self, bus_list):
+        """
+        Adds revenue to bus
+        """
         revenue_dict = self.get_revenue_dict(bus_list)
 
         for bus in bus_list:
@@ -196,6 +202,8 @@ class TripBaseView(PartnerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "trips"
+        for trip in context["trips_list"]:
+            trip.tickets = trip.ticket_set.all()  # reverse relationship
         return context
 
 
