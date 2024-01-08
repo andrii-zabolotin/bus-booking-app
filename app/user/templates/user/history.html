@@ -3,6 +3,6 @@
 {% block content %}
 <h3>Історія поїздок</h3>
 {% for dict in past_trips_with_tickets %}
-    {% include 'user/ticket_profile.html' with dict=dict %}
+    {% include 'user/ticket_profile.html' with dict=dict return_ticket=False%}
 {% endfor %}
 {% endblock %}

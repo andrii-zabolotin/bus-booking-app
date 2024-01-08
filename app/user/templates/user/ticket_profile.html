@@ -92,7 +92,9 @@
                     <li><small>Білет № {{ticket.pk}} </small></li>
                     <li>Ім'я: {{ ticket.first_name }}</li>
                     <li>Фамілія: {{ ticket.last_name }}</li>
-                    <li><a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a></li>
+                    {% if return_ticket %}
+                        <li><a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

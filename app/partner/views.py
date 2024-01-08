@@ -82,20 +82,42 @@ class BusView(PartnerRequiredMixin, ListView):
         bus_list = context["bus_list"]
         self.add_trip_counts_to_bus(bus_list)
         self.add_ticket_price_to_bus(bus_list)
-
-        context["profit"] = Ticket.objects.filter(trip__bus__in=bus_list)
+        self.add_revenue_to_bus(bus_list)
 
         return context
 
-    def get_ticket_price_dict(self, bus_list):
+    def get_revenue_dict(self, bus_list):
         return {
-            money_queryset["bus"]: {
-                "ticket_price_sum": money_queryset["ticket_price_sum"],
-                "trip_count": money_queryset["trip_count"],
-                "min_ticket_price": money_queryset["min_ticket_price"],
-                "max_ticket_price": money_queryset["max_ticket_price"],
+            bus.pk: Ticket.objects.filter(
+                trip__bus=bus, payed=True, trip__timedate_departure__lt=timezone.now()
+            ).aggregate(Sum("trip__price"))["trip__price__sum"]
+            or 0
+            for bus in bus_list
+        }
+
+    def add_revenue_to_bus(self, bus_list):
+        revenue_dict = self.get_revenue_dict(bus_list)
+
+        for bus in bus_list:
+            bus.revenue = revenue_dict[bus.pk]
+
+    def get_ticket_price_dict(self, bus_list):
+        """
+        Метод возвращает словарь в котором будет информация про цены билетов для каждого автобуса
+
+        .values - указывает Django, что нужно извлечь только определенные поля из модели.
+        .annotate - метод позволяет агрегировать данные на основе значений в каждой группе.
+
+        Trip.objects.filter... возвращает QuerySet в котором все автобусы компании
+        """
+        return {
+            bus["bus"]: {
+                "ticket_price_sum": bus["ticket_price_sum"],
+                "trip_count": bus["trip_count"],
+                "min_ticket_price": bus["min_ticket_price"],
+                "max_ticket_price": bus["max_ticket_price"],
             }
-            for money_queryset in Trip.objects.filter(
+            for bus in Trip.objects.filter(
                 bus__in=bus_list, timedate_departure__lt=datetime.now()
             )
             .values("bus")
