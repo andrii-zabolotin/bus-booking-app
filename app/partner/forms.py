@@ -85,6 +85,7 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
+                "id": "departure_station",
             }
         ),
     )
@@ -96,7 +97,7 @@ class CreateUpdateTripForm(forms.ModelForm):
             search_fields=["city__icontains"],
             attrs={
                 "class": "form-control select2",
-                "data-placeholder": "Виберіть місто відправки",
+                "id": "start_point",
             },
         ),
     )
@@ -106,6 +107,7 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
+                "id": "arrival_station",
             }
         ),
     )
@@ -118,6 +120,7 @@ class CreateUpdateTripForm(forms.ModelForm):
             attrs={
                 "class": "form-select select2",
                 "data-placeholder": "Виберіть місто відправки",
+                "id": "end_point",
             },
         ),
     )

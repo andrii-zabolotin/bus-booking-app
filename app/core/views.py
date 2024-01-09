@@ -1,16 +1,35 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import DeleteView
 
 from core.forms import *
 from core.models import *
 from user.forms import RegisterClientForm
 from .utils import *
+
+
+class AjaxGetStationsView(View):
+    """
+    Ajax View for getting stations
+    """
+
+    def get(self, request, *args, **kwargs):
+        city_id = request.GET.get("city_id")
+        stations = Station.objects.filter(city_id=city_id)
+        station_list = [
+            {
+                "id": station.id,
+                "text": f"{station.station}, {station.street_type} {station.street}, {station.number}, {station.city.city}, {station.city.region} {_('область')}, {station.city.country}",
+            }
+            for station in stations
+        ]
+        return JsonResponse({"results": station_list})
 
 
 def home_page(request):

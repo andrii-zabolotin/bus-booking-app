@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import pageForbidden
+from core.views import pageForbidden, AjaxGetStationsView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,6 +25,7 @@ urlpatterns = [
     path("user/", include("user.urls")),
     path("partner/", include("partner.urls")),
     path("select2/", include("django_select2.urls")),
+    path("ajax/get_stations/", AjaxGetStationsView.as_view(), name="ajax_get_stations"),
 ]
 
 handler403 = pageForbidden

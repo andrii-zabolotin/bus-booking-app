@@ -252,6 +252,11 @@ class CreateTripView(PartnerRequiredMixin, CreateView):
     template_name = "trip_create.html"
     success_url = "/partner/future_trips/"
 
+    def form_invalid(self, form):
+        # Выводим данные, переданные в форму, в консоль или логи
+        print(form.data)
+        return super().form_invalid(form)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user

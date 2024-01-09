@@ -1,12 +1,15 @@
 {% extends  'partner/base.html' %}
+{% load static %}
+
 
 {% block content %}
-{{form.media}}
 <form method="post" action="{% url 'partner:trip_update' trip_pk=trip.pk%}">
     {% csrf_token %}
     {{form.as_p}}
     <button type="submit" class="btn btn-danger text-light">Оновити дані</button>
     <a href="{% url 'partner:future_trips'%}"><button type="button" class="btn btn-danger text-light">Відміна редагування</button></a>
 </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{form.media}}
 {% endblock %}
 
