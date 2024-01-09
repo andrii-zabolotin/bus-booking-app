@@ -150,7 +150,6 @@ class Ticket(models.Model):
     purchase_at = models.DateTimeField(
         auto_now_add=True, verbose_name=_("Дата покупки")
     )
-    payed = models.BooleanField(default=False)
     returned = models.BooleanField(default=False)
 
     def __str__(self):

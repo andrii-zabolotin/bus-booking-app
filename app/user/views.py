@@ -4,8 +4,10 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import CreateView
 from django.utils.translation import gettext_lazy as _
 
@@ -50,7 +52,9 @@ def logout_user(request):
 def user_profile(request):
     future_user_trips = (
         Ticket.objects.filter(
-            user=request.user, trip__timedate_departure__gt=datetime.now()
+            user=request.user,
+            trip__timedate_departure__gt=timezone.now(),
+            returned=False,
         )
         .values_list("trip", flat=True)
         .distinct()
@@ -59,7 +63,7 @@ def user_profile(request):
     trips_with_tickets = []
     for trip in future_user_trips:
         obj = Trip.objects.get(pk=trip)
-        tickets = Ticket.objects.filter(user=request.user, trip=trip)
+        tickets = Ticket.objects.filter(user=request.user, trip=trip, returned=False)
         trips_with_tickets.append({"trip": obj, "tickets": tickets})
 
     return render(
@@ -100,7 +104,9 @@ def user_contact(request):
 def user_history(request):
     user_past_trips = (
         Ticket.objects.filter(
-            user=request.user, trip__timedate_departure__lt=datetime.now()
+            user=request.user,
+            trip__timedate_departure__lt=timezone.now(),
+            returned=False,
         )
         .values_list("trip", flat=True)
         .distinct()
@@ -109,7 +115,7 @@ def user_history(request):
     trips_with_tickets = []
     for trip in user_past_trips:
         obj = Trip.objects.get(pk=trip)
-        tickets = Ticket.objects.filter(user=request.user, trip=trip)
+        tickets = Ticket.objects.filter(user=request.user, trip=trip, returned=False)
         trips_with_tickets.append({"trip": obj, "tickets": tickets})
 
     return render(
@@ -124,8 +130,10 @@ def user_history(request):
 
 
 @login_required(login_url="/user/login")
-def ticker_return(request, ticket_pk):
+def ticket_return(request, ticket_pk):
     ticket = get_object_or_404(Ticket, pk=ticket_pk)
+    if ticket.trip.timedate_departure < timezone.now():
+        raise PermissionDenied()
     if request.method == "POST":
         if not ticket.returned:
             ticket.returned = True

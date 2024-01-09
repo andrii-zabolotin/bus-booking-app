@@ -9,5 +9,7 @@ def calculate_remaining_seats(trip):
 
 
 class PartnerRequiredMixin(UserPassesTestMixin):
+    login_url = "/user/login"
+
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.is_partner

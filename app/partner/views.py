@@ -203,7 +203,9 @@ class TripBaseView(PartnerRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "trips"
         for trip in context["trips_list"]:
-            trip.tickets = trip.ticket_set.all()  # reverse relationship
+            trip.tickets = trip.ticket_set.filter(
+                returned=False
+            )  # reverse relationship
         return context
 
 

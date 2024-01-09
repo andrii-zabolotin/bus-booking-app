@@ -9,6 +9,6 @@ urlpatterns = [
     path("profile/", user_profile, name="profile"),
     path("contact/", user_contact, name="contact"),
     path("history/", user_history, name="history"),
-    path("ticket/<int:ticket_pk>/return/", ticker_return, name="ticket_return"),
+    path("ticket/<int:ticket_pk>/return/", ticket_return, name="ticket_return"),
     path("", logout_user, name="logout"),
 ]

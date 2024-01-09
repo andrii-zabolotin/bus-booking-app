@@ -51,7 +51,9 @@ def home_page(request):
                     timedate_departure__date=date,
                 )
             for trip in queryset:
-                sold_tickets_count = Ticket.objects.filter(trip=trip).count()
+                sold_tickets_count = Ticket.objects.filter(
+                    trip=trip, returned=False
+                ).count()
                 remaining_seats = trip.bus.number_of_seats - sold_tickets_count
                 trip.remaining_seats = remaining_seats
                 trip.price = trip.price * passengers_quantity
@@ -154,57 +156,6 @@ def checkout(request, trip_pk):
             "price": price,
         },
     )
-
-
-# def checkout(request, trip_pk):
-#     trip = Trip.objects.get(pk=trip_pk)
-#     price = trip.price * request.session.get("passengers_quantity", 1)
-#     if request.method == "POST":
-#         buyer_form = BuyerInfoForm(request.POST)
-#         passenger_forms = [
-#             PassagerInfoForm(request.POST, prefix=f"passenger_{i}")
-#             for i in range(request.session.get("passengers_quantity", 1))
-#         ]
-#
-#         if buyer_form.is_valid() and all(form.is_valid() for form in passenger_forms):
-#             # Создание объекта BuyerInfo
-#             buyer_data = buyer_form.cleaned_data
-#             if Buyer.objects.filter(
-#                 email=buyer_data["email"], phone=buyer_data["phone"]
-#             ).exists():
-#                 buyer = Buyer.objects.get(
-#                     email=buyer_data["email"], phone=buyer_data["phone"]
-#                 )
-#             else:
-#                 buyer = Buyer.objects.create(**buyer_data)
-#
-#             for i, form in enumerate(passenger_forms):
-#                 ticket_data = form.cleaned_data  # first_name, last_name
-#                 ticket_data["user"] = request.user
-#                 ticket_data["buyer_id"] = buyer.pk
-#                 ticket_data["trip_id"] = trip_pk
-#                 Ticket.objects.create(**ticket_data)
-#
-#             return redirect("user:profile")  # Замените на свой URL успеха
-#
-#     else:
-#         buyer_form = BuyerInfoForm()
-#         passenger_forms = [
-#             PassagerInfoForm(prefix=f"passenger_{i}")
-#             for i in range(request.session.get("passengers_quantity", 1))
-#         ]
-#
-#     return render(
-#         request,
-#         "checkout.html",
-#         context={
-#             "buyer_form": buyer_form,
-#             "passenger_forms": passenger_forms,
-#             "title": _("Сплата"),
-#             "trip": trip,
-#             "price": price,
-#         },
-#     )
 
 
 def pageForbidden(request, exception):
