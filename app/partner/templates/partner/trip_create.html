@@ -3,10 +3,11 @@
 {% block content %}
 <form method="post" action="{% url 'partner:trip_create'%}">
     {% csrf_token %}
-    {{ form.media }}
     {{ form.non_field_errors }}
     {{ form.as_p }}
     <button type="submit" class="btn btn-danger text-light">Створити</button>
 </form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{ form.media }}
 {% endblock %}
 

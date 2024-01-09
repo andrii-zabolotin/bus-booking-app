@@ -24,6 +24,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("user/", include("user.urls")),
     path("partner/", include("partner.urls")),
+    path("select2/", include("django_select2.urls")),
 ]
 
 handler403 = pageForbidden

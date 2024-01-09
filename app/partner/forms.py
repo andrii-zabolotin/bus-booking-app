@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
+from django_select2.forms import ModelSelect2Widget
+
 from core.models import Bus, Company, Trip, Station, City
 
 
@@ -58,7 +60,6 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=DateTimePickerInput(
             attrs={
                 "class": "form-control",
-                "id": "floatingSelect",
             }
         ),
     )
@@ -67,7 +68,6 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=DateTimePickerInput(
             attrs={
                 "class": "form-control",
-                "id": "floatingSelect",
             }
         ),
     )
@@ -76,7 +76,6 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.NumberInput(
             attrs={
                 "class": "form-control",
-                "id": "floatingSelect",
             }
         ),
     )
@@ -86,18 +85,19 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
-                "id": "floatingSelect",
             }
         ),
     )
     start_point = forms.ModelChoiceField(
         queryset=City.objects.all(),
         label=_("Місто відправки"),
-        widget=forms.Select(
+        widget=ModelSelect2Widget(
+            model=City,
+            search_fields=["city__icontains"],
             attrs={
-                "class": "form-select",
-                "id": "floatingSelect",
-            }
+                "class": "form-control select2",
+                "data-placeholder": "Виберіть місто відправки",
+            },
         ),
     )
     arrival_station = forms.ModelChoiceField(
@@ -106,18 +106,19 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
-                "id": "floatingSelect",
             }
         ),
     )
     end_point = forms.ModelChoiceField(
         queryset=City.objects.all(),
         label=_("Місто прибуття"),
-        widget=forms.Select(
+        widget=ModelSelect2Widget(
+            model=City,
+            search_fields=["city__icontains"],
             attrs={
-                "class": "form-select",
-                "id": "floatingSelect",
-            }
+                "class": "form-select select2",
+                "data-placeholder": "Виберіть місто відправки",
+            },
         ),
     )
 
@@ -142,7 +143,6 @@ class CreateUpdateTripForm(forms.ModelForm):
         self.fields["bus"].widget.attrs.update(
             {
                 "class": "form-control",
-                "id": "floatingSelect",
             }
         )
 
