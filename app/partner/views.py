@@ -92,7 +92,7 @@ class BusView(PartnerRequiredMixin, ListView):
         """
         return {
             bus.pk: Ticket.objects.filter(
-                trip__bus=bus, payed=True, trip__timedate_departure__lt=timezone.now()
+                trip__bus=bus, trip__timedate_departure__lt=timezone.now()
             ).aggregate(Sum("trip__price"))["trip__price__sum"]
             or 0
             for bus in bus_list
