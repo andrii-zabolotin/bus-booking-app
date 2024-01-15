@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction
 from django.db.models import Count, Sum, Min, Max, Prefetch
@@ -54,6 +54,42 @@ def partner_registration(request):
         request,
         "partner/registration.html",
         context={"user_form": user_form, "company_form": company_form},
+    )
+
+
+@transaction.atomic
+def partner_subaccount_registration(request):
+    """
+    View for handling partner sub-account registration.
+    Handles the registration process for partners, including creating a new user,
+    associating them with a company, and logging them in.
+    """
+    if request.method == "POST":
+        user_form = RegisterClientForm(request.POST)
+        if user_form.is_valid():
+            try:
+                user = user_form.save(commit=False)
+                user.is_partner = True
+                user.save()
+                Partner.objects.create(
+                    user=user,
+                    company=Company.objects.get(partner__user=request.user),
+                    is_sub_account=True,
+                )
+                return redirect("partner:sub_accounts")
+            except Exception as e:
+                print(f"Error during registration: {e}")
+                messages.error(
+                    request, "An error occurred during registration. Please try again."
+                )
+                transaction.set_rollback(True)
+    else:
+        user_form = RegisterClientForm()
+
+    return render(
+        request,
+        "partner/sub_account_registration.html",
+        context={"user_form": user_form},
     )
 
 
@@ -351,3 +387,20 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+
+class SubAccountsView(PartnerRequiredMixin, ListView):
+    model = Partner
+    template_name = "partner/sub_accounts.html"
+    context_object_name = "sub_accounts"
+
+    def get_queryset(self):
+        return Partner.objects.filter(
+            company=Company.objects.get(partner__user=self.request.user),
+            is_sub_account=True,
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_tab"] = "sub_accounts"
+        return context

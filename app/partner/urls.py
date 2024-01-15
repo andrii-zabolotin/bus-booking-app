@@ -12,4 +12,10 @@ urlpatterns = [
     path("trip_create/", CreateTripView.as_view(), name="trip_create"),
     path("trip/<int:trip_pk>/update/", UpdateTripView.as_view(), name="trip_update"),
     path("registration/", partner_registration, name="registration"),
+    path("sub_accounts/", SubAccountsView.as_view(), name="sub_accounts"),
+    path(
+        "sub_account_create/",
+        partner_subaccount_registration,
+        name="sub_account_create",
+    ),
 ]

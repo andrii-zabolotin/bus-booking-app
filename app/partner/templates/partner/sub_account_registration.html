@@ -1,0 +1,17 @@
+{% extends  'partner/base.html' %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div>{{ form.non_field_errors }}</div>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {{ user_form.as_p }}
+    <button type="submit">Реєстрація</button>
+</form>
+{% endblock %}

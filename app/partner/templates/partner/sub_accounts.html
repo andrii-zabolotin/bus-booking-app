@@ -1,0 +1,12 @@
+{% extends  'partner/base.html' %}
+{% block content %}
+    Субаккаунти, створюйте та контролюйте. <a href="{% url 'partner:sub_account_create' %}"><button class="btn btn-sm btn-danger text-light">Створити субаккаунт</button></a> <br>
+    {% if sub_accounts %}
+        {% for sub_account in sub_accounts %}
+            {{sub_account.user.phone}}
+            {{sub_account.user.email}} <br>
+        {% endfor %}
+    {% else %}
+        У вас ще немає суб-акаунтів.
+    {% endif %}
+{% endblock %}
