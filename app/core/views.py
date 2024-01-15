@@ -16,10 +16,13 @@ from .utils import *
 
 class AjaxGetStationsView(View):
     """
-    Ajax View for getting stations
+    Ajax View for getting stations relatively to the selected city
     """
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
+        """
+        Handle GET requests and return a JSON response with a list of stations.
+        """
         city_id = request.GET.get("city_id")
         stations = Station.objects.filter(city_id=city_id)
         station_list = [
@@ -33,6 +36,10 @@ class AjaxGetStationsView(View):
 
 
 def home_page(request):
+    """
+    View for the home page.
+    Handles the logic for displaying and processing the city selection form to find available trips.
+    """
     queryset = None
     context = {"title": "BusJoy"}
 
@@ -113,6 +120,11 @@ def home_page(request):
 
 
 def checkout(request, trip_pk):
+    """
+    View for handling the checkout process.
+    Handles the logic for processing ticket purchases, including user authentication if user is unauthenticated,
+    form validation, and creating Ticket objects.
+    """
     trip = Trip.objects.get(pk=trip_pk)
     passengers_quantity = request.session.get("passengers_quantity", 1)
     price = trip.price * passengers_quantity
@@ -133,7 +145,6 @@ def checkout(request, trip_pk):
                     ticket_data = form.cleaned_data  # first_name, last_name
                     ticket_data["user"] = new_user
                     ticket_data["trip_id"] = trip_pk
-                    ticket_data["payed"] = True
                     Ticket.objects.create(**ticket_data)
 
                 user = authenticate(
@@ -149,7 +160,6 @@ def checkout(request, trip_pk):
                     ticket_data = form.cleaned_data  # first_name, last_name
                     ticket_data["user"] = request.user
                     ticket_data["trip_id"] = trip_pk
-                    ticket_data["payed"] = True
                     Ticket.objects.create(**ticket_data)
 
         return redirect("user:profile")
@@ -178,4 +188,7 @@ def checkout(request, trip_pk):
 
 
 def pageForbidden(request, exception):
+    """
+    View for handling forbidden (403) requests.
+    """
     return HttpResponseForbidden("Доступ заблоковано")

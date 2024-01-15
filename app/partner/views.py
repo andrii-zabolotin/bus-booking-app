@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.models import Count, Sum, Min, Max, Prefetch
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.views import View
 from slugify import slugify
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, CreateView, UpdateView
@@ -20,6 +21,11 @@ from user.forms import RegisterClientForm
 
 @transaction.atomic
 def partner_registration(request):
+    """
+    View for handling partner registration.
+    Handles the registration process for partners, including creating a new user,
+    associating them with a company, and logging them in.
+    """
     if request.method == "POST":
         user_form = RegisterClientForm(request.POST)
         company_form = CompanyForm(request.POST)
@@ -51,21 +57,49 @@ def partner_registration(request):
     )
 
 
-@login_required(login_url="/user/login")
-def partner_profile(request):
-    company = Company.objects.get(partner__user=request.user)
-    return render(
-        request,
-        "partner/profile.html",
-        context={
-            "company": company,
-            "active_tab": "profile",
-            "title": _("Контактна інформація"),
-        },
-    )
+class PartnerProfileView(PartnerRequiredMixin, View):
+    """
+    View for displaying the partner's profile information.
+    This view requires the user to be logged in as a partner. It retrieves the associated
+    company based on the logged-in user and renders the partner's profile page.
+    """
+
+    template_name = "partner/profile.html"
+
+    def get(self, request):
+        company = Company.objects.get(partner__user=request.user)
+        return render(
+            request,
+            "partner/profile.html",
+            context={
+                "company": company,
+                "active_tab": "profile",
+                "title": _("Контактна інформація"),
+            },
+        )
 
 
 class BusView(PartnerRequiredMixin, ListView):
+    """
+    View for displaying a list of buses along with additional statistics.
+    This view requires the user to be logged in as a partner and provides information about each bus,
+    including revenue, ticket prices, and trip counts.
+
+    Methods:
+        get_queryset(self): Retrieve the queryset of buses associated with the logged-in partner.
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
+        get_revenue_dict(self, bus_list): Calculate revenue for each bus in the provided list.
+        add_revenue_to_bus(self, bus_list): Add revenue information to each bus in the list.
+
+        get_ticket_price_dict(self, bus_list): Calculate ticket price statistics for each bus.
+        add_ticket_price_to_bus(self, bus_list): Add ticket price information to each bus in the list.
+
+        get_past_trip_count_dict(self, bus_list): Calculate past trip counts for each bus.
+        get_future_trip_count_dict(self, bus_list): Calculate future trip counts for each bus.
+        add_trip_counts_to_bus(self, bus_list): Add trip count information to each bus in the list.
+    """
+
     model = Bus
     template_name = "partner/bus.html"
     context_object_name = "bus_list"
@@ -88,6 +122,7 @@ class BusView(PartnerRequiredMixin, ListView):
 
     def get_revenue_dict(self, bus_list):
         """
+        Calculate revenue for each bus in the provided list.
         Returns dictionary with bus primary key as key and revenue as value
         """
         return {
@@ -100,7 +135,7 @@ class BusView(PartnerRequiredMixin, ListView):
 
     def add_revenue_to_bus(self, bus_list):
         """
-        Adds revenue to bus
+        Add revenue information to each bus in the list.
         """
         revenue_dict = self.get_revenue_dict(bus_list)
 
@@ -109,12 +144,12 @@ class BusView(PartnerRequiredMixin, ListView):
 
     def get_ticket_price_dict(self, bus_list):
         """
-        Метод возвращает словарь в котором будет информация про цены билетов для каждого автобуса
+        Method returns dictionary with information about ticket prices statistics for each bus
 
-        .values - указывает Django, что нужно извлечь только определенные поля из модели.
-        .annotate - метод позволяет агрегировать данные на основе значений в каждой группе.
+        .values - tells Django to only retrieve certain fields from the model.
+        .annotate - method allows to aggregate data based on the values in each group.
 
-        Trip.objects.filter... возвращает QuerySet в котором все автобусы компании
+        Trip.objects.filter... returns a QuerySet containing all the company's buses
         """
         return {
             bus["bus"]: {
@@ -136,6 +171,9 @@ class BusView(PartnerRequiredMixin, ListView):
         }
 
     def add_ticket_price_to_bus(self, bus_list):
+        """
+        Add ticket price information to each bus in the list.
+        """
         ticket_price_dict = self.get_ticket_price_dict(bus_list)
 
         for bus in bus_list:
@@ -179,6 +217,10 @@ class BusView(PartnerRequiredMixin, ListView):
 
 
 class CreateBusView(PartnerRequiredMixin, CreateView):
+    """
+    View for creating a new bus.
+    """
+
     form_class = CreateBusForm
     template_name = "bus_create.html"
     success_url = "/partner/buses/"
@@ -196,6 +238,10 @@ class CreateBusView(PartnerRequiredMixin, CreateView):
 
 
 class TripBaseView(PartnerRequiredMixin, ListView):
+    """
+    Base view for displaying a list of trips with associated tickets.
+    """
+
     model = Trip
     context_object_name = "trips_list"
 
@@ -210,6 +256,10 @@ class TripBaseView(PartnerRequiredMixin, ListView):
 
 
 class FutureTripView(TripBaseView):
+    """
+    View for displaying a list of future trips.
+    """
+
     template_name = "partner/future_trips.html"
 
     def get_queryset(self):
@@ -229,6 +279,10 @@ class FutureTripView(TripBaseView):
 
 
 class PastTripView(TripBaseView):
+    """
+    View for displaying a list of past trips.
+    """
+
     template_name = "partner/past_trips.html"
 
     def get_queryset(self):
@@ -248,6 +302,10 @@ class PastTripView(TripBaseView):
 
 
 class CreateTripView(PartnerRequiredMixin, CreateView):
+    """
+    View for creating a new trip.
+    """
+
     form_class = CreateUpdateTripForm
     template_name = "trip_create.html"
     success_url = "/partner/future_trips/"
@@ -269,6 +327,10 @@ class CreateTripView(PartnerRequiredMixin, CreateView):
 
 
 class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating a trip.
+    """
+
     model = Trip
     template_name = "partner/trip_update.html"
     form_class = CreateUpdateTripForm
@@ -282,9 +344,10 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
             and trip.timedate_departure > timezone.now()
         )
 
-    """Передает аргументы в конструктор формы"""
-
     def get_form_kwargs(self):
+        """
+        Pass arguments to the form's constructor
+        """
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs

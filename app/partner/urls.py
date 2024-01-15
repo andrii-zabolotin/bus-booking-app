@@ -4,7 +4,7 @@ from partner.views import *
 app_name = "partner"
 
 urlpatterns = [
-    path("profile/", partner_profile, name="profile"),
+    path("profile/", PartnerProfileView.as_view(), name="profile"),
     path("buses/", BusView.as_view(), name="buses"),
     path("bus_create/", CreateBusView.as_view(), name="bus_create"),
     path("future_trips/", FutureTripView.as_view(), name="future_trips"),
