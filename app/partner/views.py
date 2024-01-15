@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Sum, Min, Max, Prefetch
 from django.shortcuts import render, redirect
@@ -70,11 +71,11 @@ def partner_subaccount_registration(request):
             try:
                 user = user_form.save(commit=False)
                 user.is_partner = True
+                user.is_sub_account = True
                 user.save()
                 Partner.objects.create(
                     user=user,
                     company=Company.objects.get(partner__user=request.user),
-                    is_sub_account=True,
                 )
                 return redirect("partner:sub_accounts")
             except Exception as e:
@@ -394,10 +395,15 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
     template_name = "partner/sub_accounts.html"
     context_object_name = "sub_accounts"
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_sub_account:
+            raise PermissionDenied()
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         return Partner.objects.filter(
             company=Company.objects.get(partner__user=self.request.user),
-            is_sub_account=True,
+            user__is_sub_account=True,
         )
 
     def get_context_data(self, **kwargs):

@@ -70,7 +70,6 @@ class Partner(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name=_("Користувач")
     )
-    is_sub_account = models.BooleanField(default=False, verbose_name=_("Суб-аккаунт"))
 
     def __str__(self):
         return f"{self.company} {self.user.phone}"

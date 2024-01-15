@@ -39,7 +39,9 @@
                                     </ul>
                               </li>
                               <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:profile' %}">Контактна інформація</a></li>
-                              <li><a class="nav-link {% if active_tab == 'sub_accounts' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:sub_accounts' %}">Суб-аккаунти</a></li>
+                              {% if not user.is_sub_account %}
+                                <li><a class="nav-link {% if active_tab == 'sub_accounts' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:sub_accounts' %}">Суб-аккаунти</a></li>
+                              {% endif %}
                           </ul>
                       </div>
                   </nav>
