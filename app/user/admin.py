@@ -12,6 +12,7 @@ class UserAdmin(BaseUserAdmin):
         "is_active",
         "is_staff",
         "is_partner",
+        "is_sub_account",
     )
     search_fields = ("phone", "email")
     readonly_fields = ("date_joined", "last_login")
@@ -21,7 +22,15 @@ class UserAdmin(BaseUserAdmin):
         (_("Персональна інформація"), {"fields": ("email",)}),
         (
             _("Дозволи"),
-            {"fields": ("is_active", "is_staff", "is_superuser", "is_partner")},
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "is_partner",
+                    "is_sub_account",
+                )
+            },
         ),
         (_("Важливі дати"), {"fields": ("last_login", "date_joined")}),
     )

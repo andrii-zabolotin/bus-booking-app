@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -35,10 +36,15 @@ class LoginUser(LoginView):
     template_name = "user/login.html"
 
     def get_success_url(self):
-        return reverse_lazy("core:home")
+        if not self.request.GET.get("next"):
+            return reverse_lazy("core:home")
+        return self.request.GET.get("next")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["next"] = ""
+        if self.request.GET:
+            context["next"] = self.request.GET["next"]
         context["title"] = _("Авторизація")
         return context
 

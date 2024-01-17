@@ -1,7 +1,11 @@
 {% extends  'user/base.html' %}
 
 {% block content %}
-<form method="post">
+{% if next %}
+<form action="{% url 'user:login'%}?next={{next}}" method="post" >
+{%else%}
+<form action="{% url 'user:login'%}" method="post" >
+{% endif %}
     {% csrf_token %}
     <div>{{ form.non_field_errors }}</div>
     {{ form.as_p }}

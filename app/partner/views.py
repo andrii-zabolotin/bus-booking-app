@@ -396,7 +396,7 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
     context_object_name = "sub_accounts"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_sub_account:
+        if request.user.is_authenticated and request.user.is_sub_account:
             raise PermissionDenied()
         return super().dispatch(request, *args, **kwargs)
 
