@@ -1,30 +1,137 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
-<div class="container">
     {% if bus_list %}
-        {% for bus in bus_list %}
-        ----------------------------------------------------------------------- <br>
-        <div>
-            Номер: {{bus.licence_plate}} <br>
-            Бренд: {{bus.brand}} <br>
-            Кількість місць: {{bus.number_of_seats}} <br>
-            ---- <br>
-            * Інформація тільки з минулих поїздок <br>
-            Ціна білета: <br>
-            Середня: {{bus.average_ticket_price}}<br>
-            Мінімальна: {{bus.min_ticket_price}}<br>
-            Максимальна: {{bus.max_ticket_price}}<br>
-            ---- <br>
-            Поїздки: <br>
-            Всього: {{bus.trip_count}}<br>
-            З яких: <br>
-             - Майбутні поїздки: {{bus.future_trip_count}}<br>
-             - Минулі поїздки: {{bus.past_trip_count}}<br>
-            ---- <br>
-            Прибуток: {{bus.revenue}}<br>
+        <div class="row">
+            <div class="col">
+                <form method="get" action="{% url 'partner:buses' %}">
+                    <div class="row">
+                        <div class="col">
+                            <input
+                                    type="text"
+                                    name="licence_plate"
+                                    class="form-control"
+                                    value="{{ licence_plate_value }}"
+                                    placeholder="Номерний знак"
+                                    onkeypress="return event.charCode != 32"/>
+                        </div>
+                        <div class="col d-flex justify-content-start">
+                            <button type="submit" class="btn btn-danger">Знайти</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col d-flex justify-content-end ">
+                <a href="{% url 'partner:buses'%}"><button class="btn btn-danger">Прибрати фільтрування</button></a>
+            </div>
         </div>
-        ---------------------------------------------------------------------- <br>
+        {% for bus in bus_list %}
+            <div class="container p-0 border rounded shadow-sm mt-4 mb-4">
+                <div class="container p-3 rounded-top bg-body">
+                    <div class="row">
+                        <div class="col-3 border-end">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="badge bg-light border border-dark text-black fs-2">{{bus.licence_plate}}</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mt-2 d-flex justify-content-start">
+                                    <span class="badge bg-dark">{{bus.brand}}</span>
+                                </div>
+                                <div class="col mt-2 d-flex justify-content-end">
+                                    <span class="badge bg-dark">{{bus.number_of_seats}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="fw-bold">Ціна на білет</span>
+                                </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        Середня: {{bus.average_ticket_price}} UAH
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        Мінімальна: {{bus.min_ticket_price}} UAH
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        Максимальна: {{bus.max_ticket_price}} UAH
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="fw-bold">Поїздки</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    Минулі поїздки: {{bus.past_trip_count}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    Майбутні поїздки: {{bus.future_trip_count}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    Всього: {{bus.trip_count}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="fw-bold">Прибуток</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    Прибуток: {{bus.revenue}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container px-3 py-1 rounded-bottom bg-light"> <!-- Информация про рейсы -->
+                    <div class="col d-flex justify-content-end">
+                        <a class="dropdown-toggle text-danger" data-bs-toggle="collapse" href="#detail{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none">
+                            Рейси
+                        </a>
+                    </div>
+                </div>
+                <div class="collapse" id="detail{{forloop.counter}}"> <!-- Рейси -->
+                    <div class="card-body bg-body rounded-bottom">
+                <ul style="list-style-type: none; padding: 0px">
+                    <ul class="nav nav-pills mb-2" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-future-tab" data-bs-toggle="pill" data-bs-target="#pills-future{{forloop.counter}}" type="button" role="tab" aria-controls="pills-route" aria-selected="true">Майбутні рейси</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-past-tab" data-bs-toggle="pill" data-bs-target="#pills-past{{forloop.counter}}" type="button" role="tab" aria-controls="pills-carrier" aria-selected="false">Минулі рейси</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-future{{forloop.counter}}" role="tabpanel" aria-labelledby="pills-route-tab"> <!-- Вкладка Майбутні Рейси -->
+                            {% include 'partner/includes/trips_buses.html' with trips=bus.future_trips%}
+                        </div>
+                        <div class="tab-pane fade" id="pills-past{{forloop.counter}}" role="tabpanel" aria-labelledby="pills-route-tab"> <!-- Вкладка Майбутні Рейси -->
+                            {% include 'partner/includes/trips_buses.html' with trips=bus.past_trips%}
+                        </div>
+                    </div>
+                </ul>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     {% else %}
     <div class="row">

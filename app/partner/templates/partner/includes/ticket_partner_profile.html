@@ -1,4 +1,4 @@
-<div class="container p-0 mb-5 border border-warning rounded shadow-sm ">
+<div class="container p-0 mb-4 mt-3 border border-warning rounded shadow-sm ">
     <div class="container rounded p-3 bg-body ">
         <div class="row">
             <div class="col"> <!-- Зона информации-->
@@ -70,14 +70,14 @@
                 Перевізник: {{trip.bus.company}}
             </div>
             <div class="col-4">
-                Автобус: {{trip.bus.brand}} {{trip.bus.licence_plate}}
+                Автобус: {{trip.bus.brand}} <a href="{% url 'partner:buses' %}?licence_plate={{ trip.bus.licence_plate|urlencode }}">{{trip.bus.licence_plate}}</a>
             </div>
             {% if edit %}
             <div class="col d-flex justify-content-start">
                 <a href="{{trip.get_absolute_url}}" class="text-danger" style="text-decoration: none">Редагувати</a>
             </div>
             {% endif %}
-            <div class="col d-flex justify-content-center">
+            <div class="col d-flex justify-content-end">
                 <a class="dropdown-toggle text-danger" data-bs-toggle="collapse" href="#trip{{forloop.counter}}" role="button" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none">
                     Білети
                  </a>
@@ -86,17 +86,36 @@
     </div>
     <div class="collapse" id="trip{{forloop.counter}}">
         <div class="card-body bg-body rounded-bottom">
-            <ul style="list-style-type: none; padding: 0px">
-                {% for ticket in trip.tickets %}
-                    <li><strong>Пасажир №{{ forloop.counter }}</strong></li>
-                    <li><small>Білет № {{ticket.pk}} </small></li>
-                    <li>Ім'я: {{ ticket.first_name }}</li>
-                    <li>Фамілія: {{ ticket.last_name }}</li>
-                    {% if return_ticket %}
-                        <li><a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+            <div class="row  border-bottom">
+                <div class="col text-secondary">
+                    №
+                </div>
+                <div class="col text-secondary">
+                    № Білету
+                </div>
+                <div class="col text-secondary">
+                    Ім'я
+                </div>
+                <div class="col text-secondary">
+                    Фамілія
+                </div>
+            </div>
+            {% for ticket in trip.tickets %}
+                <div class="row py-2 border-bottom">
+                    <div class="col">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="col">
+                        {{ticket.pk}}
+                    </div>
+                    <div class="col">
+                        {{ ticket.first_name }}
+                    </div>
+                    <div class="col">
+                        {{ ticket.last_name }}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>

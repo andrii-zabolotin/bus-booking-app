@@ -36,6 +36,9 @@
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="{% url 'partner:future_trips' %}">Майбутні рейси</a></li>
                                         <li><a class="dropdown-item" href="{% url 'partner:past_trips' %}">Минулі рейси</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:station_list'%}">Список станцій</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'partner:station_create'%}">Додати станцію</a></li>
                                     </ul>
                               </li>
                               <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'partner:profile' %}">Контактна інформація</a></li>

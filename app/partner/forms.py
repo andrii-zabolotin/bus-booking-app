@@ -10,6 +10,10 @@ from core.models import Bus, Company, Trip, Station, City
 
 
 class CompanyForm(forms.ModelForm):
+    company_name = forms.CharField(
+        label="Назва компанії", widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
     class Meta:
         model = Company
         fields = ("company_name",)
@@ -82,6 +86,7 @@ class CreateUpdateTripForm(forms.ModelForm):
     departure_station = forms.ModelChoiceField(
         queryset=Station.objects.all(),
         label=_("Станція відправки"),
+        empty_label="",
         widget=forms.Select(
             attrs={
                 "class": "form-select",
@@ -96,7 +101,7 @@ class CreateUpdateTripForm(forms.ModelForm):
             model=City,
             search_fields=["city__icontains"],
             attrs={
-                "class": "form-control select2",
+                "class": "form-select",
                 "id": "start_point",
             },
         ),
@@ -104,6 +109,7 @@ class CreateUpdateTripForm(forms.ModelForm):
     arrival_station = forms.ModelChoiceField(
         queryset=Station.objects.all(),
         label=_("Станція прибуття"),
+        empty_label="",
         widget=forms.Select(
             attrs={
                 "class": "form-select",
@@ -118,8 +124,7 @@ class CreateUpdateTripForm(forms.ModelForm):
             model=City,
             search_fields=["city__icontains"],
             attrs={
-                "class": "form-select select2",
-                "data-placeholder": "Виберіть місто відправки",
+                "class": "form-select",
                 "id": "end_point",
             },
         ),
@@ -145,9 +150,10 @@ class CreateUpdateTripForm(forms.ModelForm):
         )
         self.fields["bus"].widget.attrs.update(
             {
-                "class": "form-control",
+                "class": "form-select",
             }
         )
+        self.fields["bus"].empty_label = ""
 
     def clean(self):
         cleaned_data = super().clean()
@@ -175,3 +181,74 @@ class CreateUpdateTripForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class StationCreateFrom(forms.ModelForm):
+    station = forms.CharField(
+        label=_("Назва станції"),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Школа №1",
+                "class": "form-control",
+            }
+        ),
+    )
+
+    street_type = forms.CharField(
+        label=_("Тип"),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Вулиця/Провулок",
+                "class": "form-control",
+            }
+        ),
+    )
+
+    street = forms.CharField(
+        label=_("Назва"),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Котляревського",
+                "class": "form-control",
+            }
+        ),
+    )
+
+    number = forms.IntegerField(
+        label=_("Номер"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": "18",
+                "class": "form-control",
+            }
+        ),
+    )
+
+    city = forms.ModelChoiceField(
+        queryset=City.objects.all(),
+        label=_("Місто"),
+        empty_label="",
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+    )
+
+    class Meta:
+        model = Station
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        street_type = cleaned_data.get("street_type")
+        street = cleaned_data.get("street")
+        number = cleaned_data.get("number")
+        city = cleaned_data.get("city")
+
+        if Station.objects.filter(
+            street_type=street_type, street=street, number=number, city=city
+        ).exists():
+            raise ValidationError(
+                _(f"Станція з такою адресою вже існує в місті {city.city}")
+            )

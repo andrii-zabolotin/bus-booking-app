@@ -1,11 +1,8 @@
-from datetime import datetime
-
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -32,7 +29,7 @@ class RegisterUser(CreateView):
 
 
 class LoginUser(LoginView):
-    form_class = AuthenticationForm
+    form_class = CustomAuthenticationForm
     template_name = "user/login.html"
 
     def get_success_url(self):
@@ -54,7 +51,17 @@ def logout_user(request):
     return redirect("core:home")
 
 
+def not_partner_required(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_partner:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
+
+
 @login_required(login_url="/user/login")
+@not_partner_required
 def user_profile(request):
     future_user_trips = (
         Ticket.objects.filter(
@@ -84,6 +91,7 @@ def user_profile(request):
 
 
 @login_required(login_url="/user/login")
+@not_partner_required
 def user_contact(request):
     if request.method == "POST":
         form = AddEmailToUser(request.POST, instance=request.user)
@@ -107,6 +115,7 @@ def user_contact(request):
 
 
 @login_required(login_url="/user/login")
+@not_partner_required
 def user_history(request):
     user_past_trips = (
         Ticket.objects.filter(
@@ -136,6 +145,7 @@ def user_history(request):
 
 
 @login_required(login_url="/user/login")
+@not_partner_required
 def ticket_return(request, ticket_pk):
     ticket = get_object_or_404(Ticket, pk=ticket_pk)
     if ticket.trip.timedate_departure < timezone.now():

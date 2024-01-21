@@ -3,7 +3,7 @@
 {% block content %}
 <form method="post" action="{% url 'partner:bus_create'%}">
     {% csrf_token %}
-    <div class="row">
+    <div class="row mt-4">
         <div class="col p-0"> <!-- Ошибка-->
             {% if form.non_field_errors %}
                 <div class="alert alert-danger font-monospace p-0 pt-2" role="alert">
@@ -16,7 +16,7 @@
         <div class="col-md-10 col-12">
                 <div class="row gx-0 justify-content-center">
                     {% for f in form %}
-                    <div class="col-md-3 col-12"> <!-- Поля формы-->
+                    <div class="col-md-4 col-12"> <!-- Поля формы-->
                             <div class="form-floating">
                                 {{ f }}
                                 <label for="floatingInputGrid">{{f.label}}</label>

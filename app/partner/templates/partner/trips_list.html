@@ -4,7 +4,7 @@
 <div class="container">
     {% if trips_list %}
         {% for trip in trips_list %}
-            {% include 'partner/ticket_partner_profile.html' with trip=trip edit=edit %}
+            {% include 'partner/includes/ticket_partner_profile.html' with trip=trip edit=edit %}
         {% endfor %}
     {% else %}
     <div class="row">
@@ -17,6 +17,10 @@
             <a href="{% url 'partner:trip_create' %}"><button class="btn btn-danger text-light">Додати Рейс</button></a>
         </div>
     </div>
+    {% endif %}
+
+    {% if page_obj.has_other_pages %} <!-- pagination -->
+        {% include 'partner/includes/pagination.html' %}
     {% endif %}
 </div>
 {% endblock %}

@@ -1,18 +1,38 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    <div>{{ form.non_field_errors }}</div>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+<div class="container mt-4">
+    <form method="post">
+        {% csrf_token %}
+        <div>{{ form.non_field_errors }}</div>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% for f in company_form %}
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <label class="form-label" for="company{{forloop.counter}}">{{f.label}}</label>
+                    <span id="company{{forloop.counter}}">{{f}}</span>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
-    {% endif %}
-    {{ company_form.as_p }}
-    {{ user_form.as_p }}
-    <button type="submit">Реєстрація</button>
-</form>
+        {% for f in user_form %}
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <label class="form-label" for="{{forloop.counter}}">{{f.label}}</label>
+                    <span id="{{forloop.counter}}">{{f}}</span>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row mt-4 d-flex justify-content-center">
+            <div class="d-grid col-4">
+                <button type="submit" class="btn btn-block btn-danger text-light">Реєстрація</button>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock %}

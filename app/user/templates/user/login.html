@@ -1,14 +1,27 @@
 {% extends  'user/base.html' %}
 
 {% block content %}
-{% if next %}
-<form action="{% url 'user:login'%}?next={{next}}" method="post" >
-{%else%}
-<form action="{% url 'user:login'%}" method="post" >
-{% endif %}
-    {% csrf_token %}
-    <div>{{ form.non_field_errors }}</div>
-    {{ form.as_p }}
-    <button type="submit">Увійти</button>
-</form>
+<div class="container mt-4">
+    {% if next %}
+    <form action="{% url 'user:login'%}?next={{next}}" method="post" >
+    {%else%}
+    <form action="{% url 'user:login'%}" method="post" >
+    {% endif %}
+        {% csrf_token %}
+        <div>{{ form.non_field_errors }}</div>
+        {% for f in form %}
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <label class="form-label" for="{{forloop.counter}}">{{f.label}}</label>
+                    <span id="{{forloop.counter}}">{{f}}</span>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row mt-4 d-flex justify-content-center">
+            <div class="d-grid col-4">
+                <button type="submit" class="btn btn-block btn-danger text-light">Увійти</button>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock %}

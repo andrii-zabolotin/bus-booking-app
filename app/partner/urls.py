@@ -18,4 +18,6 @@ urlpatterns = [
         partner_subaccount_registration,
         name="sub_account_create",
     ),
+    path("station/create/", StationCreateView.as_view(), name="station_create"),
+    path("station/list/", StationListView.as_view(), name="station_list"),
 ]

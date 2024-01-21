@@ -1,0 +1,27 @@
+{% extends  'partner/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <form method="post" action="{% url 'partner:station_create'%}">
+        {% csrf_token %}
+        {% for key, value in form.errors.items %}
+        {% endfor %}
+        {% for f in form %}
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <label class="form-label mt-2" for="{{forloop.counter}}">{{f.label}}</label>
+                    <span id="{{forloop.counter}}">{{f}}</span>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row mt-4 d-flex justify-content-center">
+            <div class="d-grid col-4">
+                <button type="submit" class="btn btn-block btn-danger text-light">Створити</button>
+            </div>
+        </div>
+    </form>
+    {{ form.media }}
+</div>
+{% endblock %}
+

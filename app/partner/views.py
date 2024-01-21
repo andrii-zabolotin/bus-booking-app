@@ -1,22 +1,26 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import login
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, Sum, Min, Max, Prefetch
+from django.db.models import Count, Sum, Min, Max
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views import View
 from slugify import slugify
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, ListView, CreateView, UpdateView
-from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, CreateView, UpdateView
 
-from core.models import Company, Bus, Partner, Trip, Ticket
+from core.models import Company, Bus, Partner, Trip, Ticket, Station
 from core.utils import PartnerRequiredMixin
-from partner.forms import CreateBusForm, CompanyForm, CreateUpdateTripForm
+from partner.forms import (
+    CreateBusForm,
+    CompanyForm,
+    CreateUpdateTripForm,
+    StationCreateFrom,
+)
 from user.forms import RegisterClientForm
 
 
@@ -142,6 +146,12 @@ class BusView(PartnerRequiredMixin, ListView):
     context_object_name = "bus_list"
 
     def get_queryset(self):
+        licence_plate = self.request.GET.get("licence_plate", "")
+
+        if licence_plate:
+            return Bus.objects.select_related("company").filter(
+                company__partner__user=self.request.user, licence_plate=licence_plate
+            )
         return Bus.objects.select_related("company").filter(
             company__partner__user=self.request.user
         )
@@ -149,13 +159,50 @@ class BusView(PartnerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "bus"
+        context["licence_plate_value"] = self.request.GET.get("licence_plate", "")
 
         bus_list = context["bus_list"]
         self.add_trip_counts_to_bus(bus_list)
         self.add_ticket_price_to_bus(bus_list)
         self.add_revenue_to_bus(bus_list)
+        self.add_future_trip_to_bus(bus_list)
+        self.add_past_trip_to_bus(bus_list)
 
         return context
+
+    def get_fututre_trip_dict(self, bus_list):
+        return {
+            bus.pk: Trip.objects.filter(
+                bus=bus, timedate_departure__gt=timezone.now()
+            ).order_by("timedate_departure")
+            for bus in bus_list
+        }
+
+    def get_past_trip_dict(self, bus_list):
+        return {
+            bus.pk: Trip.objects.filter(
+                bus=bus, timedate_departure__lt=timezone.now()
+            ).order_by("-timedate_departure")
+            for bus in bus_list
+        }
+
+    def add_future_trip_to_bus(self, bus_list):
+        future_trip_dict = self.get_fututre_trip_dict(bus_list)
+
+        for bus in bus_list:
+            for trip in future_trip_dict[bus.pk]:
+                bought_seats = Ticket.objects.filter(trip=trip, returned=False).count()
+                trip.bought_seats = bought_seats
+            bus.future_trips = future_trip_dict[bus.pk]
+
+    def add_past_trip_to_bus(self, bus_list):
+        past_trip_dict = self.get_past_trip_dict(bus_list)
+
+        for bus in bus_list:
+            for trip in past_trip_dict[bus.pk]:
+                bought_seats = Ticket.objects.filter(trip=trip, returned=False).count()
+                trip.bought_seats = bought_seats
+            bus.past_trips = past_trip_dict[bus.pk]
 
     def get_revenue_dict(self, bus_list):
         """
@@ -281,6 +328,7 @@ class TripBaseView(PartnerRequiredMixin, ListView):
 
     model = Trip
     context_object_name = "trips_list"
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -297,7 +345,7 @@ class FutureTripView(TripBaseView):
     View for displaying a list of future trips.
     """
 
-    template_name = "partner/future_trips.html"
+    template_name = "partner/trips_list.html"
 
     def get_queryset(self):
         return (
@@ -320,7 +368,7 @@ class PastTripView(TripBaseView):
     View for displaying a list of past trips.
     """
 
-    template_name = "partner/past_trips.html"
+    template_name = "partner/trips_list.html"
 
     def get_queryset(self):
         return (
@@ -346,11 +394,6 @@ class CreateTripView(PartnerRequiredMixin, CreateView):
     form_class = CreateUpdateTripForm
     template_name = "trip_create.html"
     success_url = "/partner/future_trips/"
-
-    def form_invalid(self, form):
-        # Выводим данные, переданные в форму, в консоль или логи
-        print(form.data)
-        return super().form_invalid(form)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -410,3 +453,16 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "sub_accounts"
         return context
+
+
+class StationCreateView(PartnerRequiredMixin, CreateView):
+    form_class = StationCreateFrom
+    template_name = "station_create.html"
+    success_url = "/partner/station/list/"
+
+
+class StationListView(PartnerRequiredMixin, ListView):
+    model = Station
+    template_name = "station_list.html"
+    context_object_name = "stations"
+    paginate_by = 30

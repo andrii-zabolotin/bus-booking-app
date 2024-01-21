@@ -1,0 +1,15 @@
+{% extends  'partner/base.html' %}
+{% block content %}
+{% for station in stations %}
+<div class="container border rounded bg-body mt-3 mb-3">
+     <div class="row py-2">
+        <div class="col">
+            {{station}}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% if page_obj.has_other_pages %} <!-- pagination -->
+    {% include 'partner/includes/pagination.html' %}
+{% endif %}
+{% endblock %}

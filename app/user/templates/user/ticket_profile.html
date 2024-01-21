@@ -84,21 +84,6 @@
             </div>
         </div>
     </div>
-    <div class="collapse" id="passegers{{forloop.counter}}">
-        <div class="card-body bg-body rounded-bottom">
-            <ul style="list-style-type: none; padding: 0px">
-                {% for ticket in dict.tickets %}
-                    <li><strong>Пасажир №{{ forloop.counter }}</strong></li>
-                    <li><small>Білет № {{ticket.pk}} </small></li>
-                    <li>Ім'я: {{ ticket.first_name }}</li>
-                    <li>Фамілія: {{ ticket.last_name }}</li>
-                    {% if return_ticket %}
-                        <li><a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
     <div class="collapse" id="detail{{forloop.counter}}"> <!-- Подробиці -->
         <div class="card-body bg-body rounded-bottom">
             <ul style="list-style-type: none; padding: 0px">
@@ -115,7 +100,7 @@
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-route" role="tabpanel" aria-labelledby="pills-route-tab"> <!-- Вкладка Маршрут-->
-                        <div class="row ">
+                        <div class="row">
                             <div class="col">
                                 <span>
                                     Рейс <span class="fw-bold">{{dict.trip.start_point.city}}</span> - <span class="fw-bold">{{dict.trip.end_point.city}}</span>, на <span class="fw-bold">{{dict.trip.timedate_departure}}</span>
@@ -196,6 +181,50 @@
                     </div>
                 </div>
             </ul>
+        </div>
+    </div>
+    <div class="collapse" id="passegers{{forloop.counter}}">
+        <div class="card-body bg-body rounded-bottom">
+            <div class="row border-bottom">
+                <div class="col text-secondary">
+                    №
+                </div>
+                <div class="col text-secondary">
+                    № Білету
+                </div>
+                <div class="col text-secondary">
+                    Ім'я
+                </div>
+                <div class="col text-secondary">
+                    Фамілія
+                </div>
+                {% if return_ticket %}
+                <div class="col text-secondary">
+                    Здати білет
+                </div>
+                {% endif %}
+            </div>
+            {% for ticket in dict.tickets %}
+                <div class="row py-2 border-bottom">
+                    <div class="col">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="col">
+                        {{ticket.pk}}
+                    </div>
+                    <div class="col">
+                        {{ ticket.first_name }}
+                    </div>
+                    <div class="col">
+                        {{ ticket.last_name }}
+                    </div>
+                    {% if return_ticket %}
+                    <div class="col">
+                        <a href="{% url 'user:ticket_return' ticket_pk=ticket.pk%}"><button class="btn btn-danger text-light btn-sm">Здати білет</button></a>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>

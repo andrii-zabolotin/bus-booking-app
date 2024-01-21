@@ -191,4 +191,4 @@ def pageForbidden(request, exception):
     """
     View for handling forbidden (403) requests.
     """
-    return HttpResponseForbidden("Доступ заблоковано")
+    return render(request, "403.html")
