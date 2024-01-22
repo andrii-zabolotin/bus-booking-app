@@ -262,9 +262,10 @@ class BusView(PartnerRequiredMixin, ListView):
 
         for bus in bus_list:
             money_info = ticket_price_dict.get(bus.id, {})
-            bus.average_ticket_price = money_info.get(
-                "ticket_price_sum", 0
-            ) / money_info.get("trip_count", 1)
+            bus.average_ticket_price = round(
+                money_info.get("ticket_price_sum", 0) / money_info.get("trip_count", 1),
+                2,
+            )
             bus.min_ticket_price = money_info.get("min_ticket_price", 0)
             bus.max_ticket_price = money_info.get("max_ticket_price", 0)
 
@@ -314,6 +315,11 @@ class CreateBusView(PartnerRequiredMixin, CreateView):
         obj.company = Company.objects.get(partner__user=self.request.user)
         obj.save()
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        for key, value in form.errors.items():
+            form.fields[key].widget.attrs["class"] = "form-control is-invalid"
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

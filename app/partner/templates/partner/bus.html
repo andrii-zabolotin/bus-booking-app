@@ -1,7 +1,7 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
-    {% if bus_list %}
+    {% if bus_list or request.GET.licence_plate%}
         <div class="row">
             <div class="col">
                 <form method="get" action="{% url 'partner:buses' %}">

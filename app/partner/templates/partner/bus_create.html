@@ -1,32 +1,44 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
-<form method="post" action="{% url 'partner:bus_create'%}">
+<form method="post" action="{% url 'partner:bus_create'%}" novalidate>
     {% csrf_token %}
-    <div class="row mt-4">
-        <div class="col p-0"> <!-- Ошибка-->
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger font-monospace p-0 pt-2" role="alert">
-                    {{ form.non_field_errors }}
+    <div class="row d-flex justify-content-center">
+        <div class="col-4">
+            <label class="form-label mt-2" for="licence_plate">{{form.licence_plate.label}}</label>
+            <span id="licence_plate">{{form.licence_plate}}</span>
+            {% if "licence_plate" in form.errors.keys %}
+                <div class="text-danger small">
+                    {{form.errors.licence_plate}}
                 </div>
             {% endif %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-10 col-12">
-                <div class="row gx-0 justify-content-center">
-                    {% for f in form %}
-                    <div class="col-md-4 col-12"> <!-- Поля формы-->
-                            <div class="form-floating">
-                                {{ f }}
-                                <label for="floatingInputGrid">{{f.label}}</label>
-                            </div>
-                    </div>
-                    {% endfor %}
+    <div class="row d-flex justify-content-center">
+        <div class="col-4">
+            <label class="form-label mt-2" for="number_of_seats">{{form.number_of_seats.label}}</label>
+            <span id="number_of_seats">{{form.number_of_seats}}</span>
+            {% if "number_of_seats" in form.errors.keys %}
+                <div class="text-danger small">
+                    {{form.errors.number_of_seats}}
                 </div>
+            {% endif %}
         </div>
-        <div class="col-md-2 col-12 ps-md-0">
-            <button type="submit" class="btn btn-danger text-light w-100 h-100">Створити</button>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="col-4">
+            <label class="form-label mt-2" for="brand">{{form.brand.label}}</label>
+            <span id="brand">{{form.brand}}</span>
+            {% if "brand" in form.errors.keys %}
+                <div class="text-danger small">
+                    {{form.errors.brand}}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row mt-4 d-flex justify-content-center">
+        <div class="d-grid col-4">
+            <button type="submit" class="btn btn-block btn-danger text-light">Створити</button>
         </div>
     </div>
 </form>

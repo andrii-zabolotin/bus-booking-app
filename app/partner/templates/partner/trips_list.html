@@ -3,6 +3,29 @@
 {% block content %}
 <div class="container">
     {% if trips_list %}
+        <div class="row">
+            <div class="col">
+                <form method="get" action="{% url 'partner:buses' %}">
+                    <div class="row">
+                        <div class="col">
+                            <input
+                                    type="text"
+                                    name="licence_plate"
+                                    class="form-control"
+                                    value="{{ licence_plate_value }}"
+                                    placeholder="Номерний знак"
+                                    onkeypress="return event.charCode != 32"/>
+                        </div>
+                        <div class="col d-flex justify-content-start">
+                            <button type="submit" class="btn btn-danger">Знайти</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col d-flex justify-content-end ">
+                <a href="{% url 'partner:buses'%}"><button class="btn btn-danger">Прибрати фільтрування</button></a>
+            </div>
+        </div>
         {% for trip in trips_list %}
             {% include 'partner/includes/ticket_partner_profile.html' with trip=trip edit=edit %}
         {% endfor %}

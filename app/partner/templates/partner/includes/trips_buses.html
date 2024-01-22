@@ -1,4 +1,5 @@
 {% if trips %}
+<div class="container p-0 border-top">
     {% for trip in trips %}
     <div class="container p-3 bg-body rounded-top border-bottom">
         <div class="row">
@@ -81,6 +82,7 @@
         </div>
     </div>
     {% endfor %}
+</div>
 {% else %}
     <div class="row">
         <div class="col d-flex justify-content-center">

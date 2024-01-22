@@ -49,6 +49,7 @@ class CreateBusForm(forms.ModelForm):
             attrs={
                 "class": "form-control",
                 "id": "floatingSelect",
+                "placeholder": "AA5555BB",
             }
         ),
     )
@@ -56,6 +57,17 @@ class CreateBusForm(forms.ModelForm):
     class Meta:
         model = Bus
         fields = ("licence_plate", "number_of_seats", "brand")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        licence_plate = cleaned_data.get("licence_plate")
+
+        if " " in str(licence_plate):
+            raise ValidationError(
+                {"licence_plate": "Номерний знак не повинен містити знаків відступу."}
+            )
+
+        return cleaned_data
 
 
 class CreateUpdateTripForm(forms.ModelForm):
@@ -167,17 +179,17 @@ class CreateUpdateTripForm(forms.ModelForm):
 
         if timedate_departure >= timedate_arrival:
             raise ValidationError(
-                _("Дата приїзду повинна бути більша ніж дата від'їзду")
+                _("Дата приїзду повинна бути більша ніж дата від'їзду.")
             )
 
         if departure_station.city != start_point:
             raise ValidationError(
-                _("Станція від'їзду повинна бути розташована в місті від'їзду")
+                _("Станція від'їзду повинна бути розташована в місті від'їзду.")
             )
 
         if arrival_station.city != end_point:
             raise ValidationError(
-                _("Станція приїзду повинна бути розташована в місті приїзду")
+                _("Станція приїзду повинна бути розташована в місті приїзду.")
             )
 
         return cleaned_data

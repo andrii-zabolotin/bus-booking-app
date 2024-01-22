@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col"> <!-- Зона информации-->
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-5">
                         <div class="row">
                             <div class="col-6">
                                 <div class="row">
@@ -35,7 +35,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-5">
                         <div class="row">
                             <div class="col-3"> <!-- Время приезда -->
                                 <span class="fs-3">{{trip.timedate_arrival|time}}</span>
@@ -57,6 +57,18 @@
                                     {{trip.arrival_station.street}},
                                     {{trip.arrival_station.number}}
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2 d-flex justify-content-center align-items-center"> <!-- Зона кнопки -->
+                        <div class="row">
+                            <div class="col position-relative">
+                                <span class="fs-3">{{trip.price}}</span><span class="fs-6">грн</span>
+                                {% if trip.tickets.count > 10 %}
+                                    <span class="position-absolute top-100 start-50 translate-middle fs-6 mt-3 fw-light text-nowrap text-success">{{trip.tickets.count}}/{{trip.bus.number_of_seats}} місць</span>
+                                {% else %}
+                                    <span class="position-absolute top-100 start-50 translate-middle fs-6 mt-3 fw-light text-nowrap text-danger">{{trip.tickets.count}}/{{trip.bus.number_of_seats}} місць</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -86,36 +98,52 @@
     </div>
     <div class="collapse" id="trip{{forloop.counter}}">
         <div class="card-body bg-body rounded-bottom">
-            <div class="row  border-bottom">
-                <div class="col text-secondary">
-                    №
-                </div>
-                <div class="col text-secondary">
-                    № Білету
-                </div>
-                <div class="col text-secondary">
-                    Ім'я
-                </div>
-                <div class="col text-secondary">
-                    Фамілія
-                </div>
-            </div>
-            {% for ticket in trip.tickets %}
-                <div class="row py-2 border-bottom">
-                    <div class="col">
-                        {{ forloop.counter }}
+            {% if trip.tickets %}
+                <div class="row  border-bottom">
+                    <div class="col text-secondary">
+                        №
                     </div>
-                    <div class="col">
-                        {{ticket.pk}}
+                    <div class="col text-secondary">
+                        Ім'я
                     </div>
-                    <div class="col">
-                        {{ ticket.first_name }}
+                    <div class="col text-secondary">
+                        Фамілія
                     </div>
-                    <div class="col">
-                        {{ ticket.last_name }}
+                    <div class="col text-secondary">
+                        Номер телефону
                     </div>
                 </div>
-            {% endfor %}
+                {% for ticket in trip.tickets %}
+                    <div class="row py-2 border-bottom">
+                        <div class="col">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="col">
+                            {{ ticket.first_name }}
+                        </div>
+                        <div class="col">
+                            {{ ticket.last_name }}
+                        </div>
+                        <div class="col">
+                            {{ ticket.user.phone }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-x-octagon" viewBox="0 0 16 16">
+                            <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <span>Немає білетів</span>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

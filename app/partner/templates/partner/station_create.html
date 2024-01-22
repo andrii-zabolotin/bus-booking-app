@@ -6,6 +6,7 @@
     <form method="post" action="{% url 'partner:station_create'%}">
         {% csrf_token %}
         {% for key, value in form.errors.items %}
+            {{value}}
         {% endfor %}
         {% for f in form %}
             <div class="row d-flex justify-content-center">
