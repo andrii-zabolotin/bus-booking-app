@@ -154,8 +154,12 @@ def ticket_return(request, ticket_pk):
         if not ticket.returned:
             ticket.returned = True
             ticket.save()
-            return render(request, "confirm_return.html", {"ticket": ticket})
+            return render(request, "user/confirm_return.html", {"ticket": ticket})
         else:
-            return render(request, "already_returned.html", {"ticket": ticket})
+            return render(request, "user/already_returned.html", {"ticket": ticket})
 
-    return render(request, "user/ticket_return.html", context={"ticket_pk": ticket_pk})
+    return render(
+        request,
+        "user/ticket_return.html",
+        context={"ticket_pk": ticket_pk, "ticket": ticket},
+    )
