@@ -1,13 +1,59 @@
 {% extends  'partner/base.html' %}
 {% load static %}
-
-
 {% block content %}
 <form method="post" action="{% url 'partner:trip_update' trip_pk=trip.pk%}">
     {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit" class="btn btn-danger text-light">Оновити дані</button>
-    <a href="{% url 'partner:future_trips'%}"><button type="button" class="btn btn-danger text-light">Відміна редагування</button></a>
+    {{ form.non_field_errors }}
+
+    <div class="row mt-3 mb-3">
+        <div class="col">
+            <label class="form-label" for="bus">{{form.bus.label}}</label>
+            <span>{{form.bus}}</span>
+        </div>
+        <div class="col">
+            <label class="form-label" for="price">{{form.price.label}}</label>
+            <span>{{form.price}}</span>
+        </div>
+    </div>
+    <div class="row mt-3 mb-3">
+        <div class="col">
+            <label class="form-label" for="start_point">{{form.start_point.label}}</label>
+            <span>{{form.start_point}}</span>
+        </div>
+        <div class="col">
+            <label class="form-label" for="departure_station">{{form.departure_station.label}}</label>
+            <span>{{form.departure_station}}</span>
+
+        </div>
+        <div class="col">
+            <label class="form-label" for="timedate_departure">{{form.timedate_departure.label}}</label>
+            <span>{{form.timedate_departure}}</span>
+        </div>
+    </div>
+    <div class="row mt-3 mb-3">
+        <div class="col">
+            <label class="form-label" for="end_point">{{form.end_point.label}}</label>
+            <span>{{form.end_point}}</span>
+        </div>
+        <div class="col">
+            <label class="form-label" for="arrival_station">{{form.arrival_station.label}}</label>
+            <span aria-describedby="stationHelpBlock">{{form.arrival_station}}</span>
+            <div id="stationHelpBlock" class="form-text">
+                Не бачите потрібну станцію? <a href="{% url 'partner:station_create'%}" style="color: #6c757d;">Створіть її</a>.
+                <br> *Дані внесені в форму не збережуться
+            </div>
+        </div>
+        <div class="col">
+            <label class="form-label" for="timedate_arrival">{{form.timedate_arrival.label}}</label>
+            <span>{{form.timedate_arrival}}</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-flex justify-content-end">
+            <button type="submit" class="btn btn-danger text-light ">Оновити дані</button>
+            <a href="{% url 'partner:future_trips'%}"><button type="button" class="btn btn-danger text-light ms-4">Відміна редагування</button></a>
+        </div>
+    </div>
 </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {{form.media}}

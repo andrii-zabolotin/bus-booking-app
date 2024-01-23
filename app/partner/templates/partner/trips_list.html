@@ -1,7 +1,6 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
-<div class="container">
     {% if trips_list %}
         <div class="row">
             <div class="col">
@@ -45,5 +44,4 @@
     {% if page_obj.has_other_pages %} <!-- pagination -->
         {% include 'partner/includes/pagination.html' %}
     {% endif %}
-</div>
 {% endblock %}

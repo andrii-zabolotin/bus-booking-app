@@ -84,9 +84,9 @@
             <div class="col-4">
                 Автобус: {{trip.bus.brand}} <a href="{% url 'partner:buses' %}?licence_plate={{ trip.bus.licence_plate|urlencode }}">{{trip.bus.licence_plate}}</a>
             </div>
-            {% if edit %}
+            {% if edit != False %}
             <div class="col d-flex justify-content-start">
-                <a href="{{trip.get_absolute_url}}" class="text-danger" style="text-decoration: none">Редагувати</a>
+                <a href="{{trip.get_absolute_url}}" class="text-danger {% if not trip.edit %} btn p-0 w-0 disabled {% endif %}" style="text-decoration: none">Редагувати</a>
             </div>
             {% endif %}
             <div class="col d-flex justify-content-end">

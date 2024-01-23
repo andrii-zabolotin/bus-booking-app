@@ -170,13 +170,22 @@ class BusView(PartnerRequiredMixin, ListView):
 
         return context
 
-    def get_fututre_trip_dict(self, bus_list):
+    def get_future_trip_dict(self, bus_list):
         return {
             bus.pk: Trip.objects.filter(
                 bus=bus, timedate_departure__gt=timezone.now()
             ).order_by("timedate_departure")
             for bus in bus_list
         }
+
+    def add_future_trip_to_bus(self, bus_list):
+        future_trip_dict = self.get_future_trip_dict(bus_list)
+
+        for bus in bus_list:
+            for trip in future_trip_dict[bus.pk]:
+                bought_seats = Ticket.objects.filter(trip=trip, returned=False).count()
+                trip.bought_seats = bought_seats
+            bus.future_trips = future_trip_dict[bus.pk]
 
     def get_past_trip_dict(self, bus_list):
         return {
@@ -185,15 +194,6 @@ class BusView(PartnerRequiredMixin, ListView):
             ).order_by("-timedate_departure")
             for bus in bus_list
         }
-
-    def add_future_trip_to_bus(self, bus_list):
-        future_trip_dict = self.get_fututre_trip_dict(bus_list)
-
-        for bus in bus_list:
-            for trip in future_trip_dict[bus.pk]:
-                bought_seats = Ticket.objects.filter(trip=trip, returned=False).count()
-                trip.bought_seats = bought_seats
-            bus.future_trips = future_trip_dict[bus.pk]
 
     def add_past_trip_to_bus(self, bus_list):
         past_trip_dict = self.get_past_trip_dict(bus_list)
@@ -365,7 +365,10 @@ class FutureTripView(TripBaseView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["edit"] = True
+        trips = context["trips_list"]
+        for trip in trips:
+            trip.edit = not Ticket.objects.filter(trip=trip).exists()
+
         return context
 
 
@@ -428,6 +431,7 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
         return (
             Company.objects.get(partner__user=self.request.user) == trip.bus.company
             and trip.timedate_departure > timezone.now()
+            and not Ticket.objects.filter(trip=trip).exists()
         )
 
     def get_form_kwargs(self):
