@@ -76,6 +76,7 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=DateTimePickerInput(
             attrs={
                 "class": "form-control",
+                "id": "timedate_departure",
             }
         ),
     )
@@ -84,6 +85,7 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=DateTimePickerInput(
             attrs={
                 "class": "form-control",
+                "id": "timedate_arrival",
             }
         ),
     )
@@ -92,6 +94,7 @@ class CreateUpdateTripForm(forms.ModelForm):
         widget=forms.NumberInput(
             attrs={
                 "class": "form-control",
+                "id": "price",
             }
         ),
     )
