@@ -20,6 +20,7 @@
                               <li><a class="nav-link {% if active_tab == 'profile' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'user:profile' %}">Майбутні поїздки</a></li>
                               <li><a class="nav-link {% if active_tab == 'history' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'user:history' %}">Історія поїздок</a></li>
                               <li><a class="nav-link {% if active_tab == 'contact' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'user:contact' %}">Контактна інформація</a></li>
+                              <li><a class="nav-link {% if active_tab == 'returned_tickets' %}active border-bottom border-dark border-2{% endif %}" href="{% url 'user:returned_tickets' %}">Повернені квитки</a></li>
                           </ul>
                       </div>
                   </nav>

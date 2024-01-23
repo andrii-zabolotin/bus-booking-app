@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView, ListView
 from django.utils.translation import gettext_lazy as _
 
 from core.models import Ticket, Trip
@@ -58,6 +58,31 @@ def not_partner_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapped_view
+
+
+@login_required(login_url="/user/login")
+@not_partner_required
+def user_returned_tickets(request):
+    tickets = Ticket.objects.filter(user=request.user, returned=True)
+
+    return render(
+        request,
+        "user/returned_tickets.html",
+        context={"tickets": tickets, "active_tab": "returned_tickets"},
+    )
+
+
+# class UserReturnedTicketsView(ListView):
+#     template_name = "user/returned_tickets.html"
+#     context_object_name = "tickets"
+#
+#     def get_queryset(self):
+#         return Ticket.objects.filter(user=self.request.user, returned=True)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data()
+#         context["active_tab"] = "returned_tickets"
+#         return context
 
 
 @login_required(login_url="/user/login")

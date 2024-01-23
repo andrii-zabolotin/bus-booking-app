@@ -1,7 +1,7 @@
 {% extends  'user/base.html' %}
 
 {% block content %}
-<h3>Майбутні поїздки</h3>
+<h3 class="mt-2 mb-4">Майбутні поїздки</h3>
 {% for dict in future_trips_with_tickets %}
     {% include 'user/includes/ticket_profile.html' with dict=dict return_ticket=True%}
 {% endfor %}

@@ -1,0 +1,79 @@
+{% extends 'user/base.html'%}
+{% block content%}
+    {% for ticket in tickets %}
+        <div class="container mt-4 rounded shadow-sm bg-body">
+            <div class="row">
+                <div class="col d-flex justify-content-center mt-3">
+                    <span class="fw-bold fs-5">Білет №{{ticket.pk}}</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="row">
+                    <div class="col">
+                        <span>
+                            Рейс <span class="fw-bold">{{ticket.trip.start_point.city}}</span> - <span
+                                class="fw-bold">{{ticket.trip.end_point.city}}</span>, на <span class="fw-bold">{{ticket.trip.timedate_departure}}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        Перевізник: <span class="fw-light">{{ticket.trip.bus.company}}</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        Час в дорозі: <span class="fw-light">{{ticket.trip.timedate_arrival|timeuntil:ticket.trip.timedate_departure}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1">
+                        <span class="fw-bold">{{ticket.trip.timedate_departure|time}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-bold">{{ticket.trip.start_point.city}}</span>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-1">
+                        <span class="fw-light">{{ticket.trip.timedate_departure | date:"j b."}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-light">
+                            {{ticket.trip.departure_station.station}}
+                            {{ticket.trip.departure_station.street_type|lower}}
+                            {{ticket.trip.departure_station.street}},
+                            {{ticket.trip.departure_station.number}}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1">
+                        <span class="fw-bold">{{ticket.trip.timedate_arrival|time}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-bold">{{ticket.trip.end_point.city}}</span>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-1">
+                        <span class="fw-light">{{ticket.trip.timedate_arrival| date:"j b."}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-light">
+                            {{ticket.trip.arrival_station.station}}
+                            {{ticket.trip.arrival_station.street_type|lower}}
+                            {{ticket.trip.arrival_station.street}},
+                            {{ticket.trip.arrival_station.number}}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col">
+                        Пасажир: <span class="fw-bold">{{ticket.last_name}} {{ticket.first_name}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
