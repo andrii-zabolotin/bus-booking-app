@@ -68,21 +68,12 @@ def user_returned_tickets(request):
     return render(
         request,
         "user/returned_tickets.html",
-        context={"tickets": tickets, "active_tab": "returned_tickets"},
+        context={
+            "tickets": tickets,
+            "active_tab": "returned_tickets",
+            "title": _("Повернені квитки"),
+        },
     )
-
-
-# class UserReturnedTicketsView(ListView):
-#     template_name = "user/returned_tickets.html"
-#     context_object_name = "tickets"
-#
-#     def get_queryset(self):
-#         return Ticket.objects.filter(user=self.request.user, returned=True)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data()
-#         context["active_tab"] = "returned_tickets"
-#         return context
 
 
 @login_required(login_url="/user/login")
@@ -179,12 +170,30 @@ def ticket_return(request, ticket_pk):
         if not ticket.returned:
             ticket.returned = True
             ticket.save()
-            return render(request, "user/confirm_return.html", {"ticket": ticket})
+            return render(
+                request,
+                "user/confirm_return.html",
+                {
+                    "ticket": ticket,
+                    "title": _(f"Повернення білета №{ticket_pk}"),
+                },
+            )
         else:
-            return render(request, "user/already_returned.html", {"ticket": ticket})
+            return render(
+                request,
+                "user/already_returned.html",
+                {
+                    "ticket": ticket,
+                    "title": _(f"Повернення білета №{ticket_pk}"),
+                },
+            )
 
     return render(
         request,
         "user/ticket_return.html",
-        context={"ticket_pk": ticket_pk, "ticket": ticket},
+        context={
+            "ticket_pk": ticket_pk,
+            "ticket": ticket,
+            "title": _(f"Повернення білета №{ticket_pk}"),
+        },
     )

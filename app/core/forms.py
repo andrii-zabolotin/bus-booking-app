@@ -19,8 +19,22 @@ class BuyerInfoForm(forms.Form):
 
 
 class PassagerInfoForm(forms.Form):
-    first_name = forms.CharField(label=_("Ім'я"))
-    last_name = forms.CharField(label=_("Фамілія"))
+    first_name = forms.CharField(
+        label=_("Ім'я"),
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+            }
+        ),
+    )
+    last_name = forms.CharField(
+        label=_("Фамілія"),
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+            }
+        ),
+    )
 
 
 class CitySelectionForm(forms.Form):

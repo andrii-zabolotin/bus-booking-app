@@ -3,11 +3,11 @@
     {% for ticket in tickets %}
         <div class="container mt-4 rounded shadow-sm bg-body">
             <div class="row">
-                <div class="col d-flex justify-content-center mt-3">
+                <div class="col d-flex justify-content-center mt-2">
                     <span class="fw-bold fs-5">Білет №{{ticket.pk}}</span>
                 </div>
             </div>
-            <div class="row mt-2">
+            <div class="row mt-1">
                 <div class="row">
                     <div class="col">
                         <span>
@@ -68,12 +68,12 @@
                         </span>
                     </div>
                 </div>
-                <div class="row mb-4">
+            </div>
+                <div class="row bg-light rounded-bottom">
                     <div class="col">
                         Пасажир: <span class="fw-bold">{{ticket.last_name}} {{ticket.first_name}}</span>
                     </div>
                 </div>
-            </div>
         </div>
     {% endfor %}
 {% endblock %}

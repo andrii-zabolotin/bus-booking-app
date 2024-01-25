@@ -1,29 +1,154 @@
 {% extends  'core/base.html' %}
 
 {% block content %}
-<h2>Оформлення квитка</h2>
-<span style="font-size: 16px">Рейс №{{trip.pk}}, за маршрутом <strong>{{trip.start_point}} - {{trip.end_point}}</strong>
-    <strong>{{trip.timedate_departure|date}}</strong>о <strong>{{trip.timedate_departure|time}}</strong></span> <br>
-<span style="font-size: 16px">Автобус: <strong>{{trip.bus.brand}} {{trip.bus.vin}}</strong></span>
-
-<form method="post" action="{% url 'core:checkout' trip_pk=trip.pk %}">
+<div class="row mt-4">
+    <div class="col">
+        <span class="fs-4 fw-bold">Оформлення квитка</span>
+    </div>
+</div>
+<form method="post" action="{% url 'core:checkout' trip_pk=trip.pk %} novalidate">
     {% csrf_token %}
+    <div class="row">
+        <div class="col-6">
+            <!-- Passenger form -->
+            {% for form in  passenger_forms %}
+            <div class="container mt-4 bg-body shadow-sm py-3 rounded">
+                <div class="row">
+                    <div class="col">
+                        <span class="fw-bold fs-4">Пасажир №{{forloop.counter}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    {% for field in form %}
+                        <div class="col-6">
+                            <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
+                            <span id={{field.name}}>{{field}}</span>
+                            {% if field.name in form.errors.keys %}
+                                <div class="text-danger small">
+                                    {% for f, errors in form.errors.items %}
+                                        {% if f == field.name %}
+                                            {% for error in errors %}
+                                                {{error}}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col"> <!-- Карточка рейсу -->
+            <div class="container p-0 p-3 mt-4 rounded shadow-sm bg-body">
+                <div class="row">
+                    <div class="col">
+                        <span>
+                            Рейс <span class="fw-bold">{{trip.start_point.city}}</span> - <span
+                                class="fw-bold">{{trip.end_point.city}}</span>, на <span class="fw-bold">{{trip.timedate_departure}}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        Перевізник: <span class="fw-light">{{trip.bus.company}}</span>
+                    </div>
+                </div>
+                <div class="col">
+                    Автобус: {{trip.bus.brand}} {{trip.bus.licence_plate}}
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        Час в дорозі: <span class="fw-light">{{trip.timedate_arrival|timeuntil:trip.timedate_departure}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        <span class="fw-bold">{{trip.timedate_departure|time}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-bold">{{trip.start_point.city}}</span>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-2">
+                        <span class="fw-light">{{trip.timedate_departure | date:"j b."}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-light">
+                            {{trip.departure_station.station}}
+                            {{trip.departure_station.street_type|lower}}
+                            {{trip.departure_station.street}},
+                            {{trip.departure_station.number}}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        <span class="fw-bold">{{trip.timedate_arrival|time}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-bold">{{trip.end_point.city}}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        <span class="fw-light">{{trip.timedate_arrival| date:"j b."}}</span>
+                    </div>
+                    <div class="col">
+                        <span class="fw-light">
+                            {{trip.arrival_station.station}}
+                            {{trip.arrival_station.street_type|lower}}
+                            {{trip.arrival_station.street}},
+                            {{trip.arrival_station.number}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <br>
-    <!-- Passenger form -->
-    {% for form in passenger_forms %}
-    <h4>Пасажир №{{forloop.counter}}</h4>
-    {{ form.as_p }}
-    {% endfor %}
-
-    {% if buyer_form%}
-    <br>
-    <h4>Інформація про покупця</h4>
-    <p>Вказуйте коректні e-mail та номер телефону, тому що вони необхідні для ідентифікації користувача, отримання квитка, можливості авторизації в особистому кабінеті та можливості повернути квиток</p>
-    <!-- Buyer form -->
-    {{ buyer_form.as_p }}
+    {% if buyer_form %}
+        <div class="row mt-4">
+            <span class="fs-4 fw-bold">Інформація про покупця</span>
+            <p>Вказуйте коректні e-mail та номер телефону, тому що вони необхідні для ідентифікації користувача, отримання квитка, можливості авторизації в особистому кабінеті та можливості повернути квиток</p>
+            <!-- Buyer form -->
+            {% for field in buyer_form %}
+            <div class="row d-flex justify-content-start">
+                <div class="col-4">
+                    <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
+                    <span id={{field.name}}>{{field}}</span>
+                    {% if field.name in form.errors.keys %}
+                        <div class="text-danger small">
+                            {% for f, errors in form.errors.items %}
+                                {% if f == field.name %}
+                                    {% for error in errors %}
+                                        {{error}}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     {% endif %}
-    <span><h4>{{ price }}грн</h4></span>
-    <button type="submit">Купить билеты</button>
+
+    <div class="row">
+        <div class="col">
+            <div class="row my-3">
+                <div class="col">
+                    <span class="fs-4 fw-bold">{{price}} UAH</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 d-grid">
+                    <button type="submit" class="btn btn-block btn-danger text-light">Купити білет</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock %}

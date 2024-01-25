@@ -41,7 +41,7 @@ def home_page(request):
     Handles the logic for displaying and processing the city selection form to find available trips.
     """
     queryset = None
-    context = {"title": "BusJoy"}
+    context = {"title": "BusEnjoyer"}
 
     if request.method == "POST":
         form = CitySelectionForm(request.POST)
