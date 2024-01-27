@@ -1,9 +1,9 @@
 {% extends  'partner/base.html' %}
 {% load static %}
 {% block content %}
-<form method="post" action="{% url 'partner:trip_create'%}">
+<form method="post" action="{% url 'partner:trip_create'%}" novalidate>
     {% csrf_token %}
-    {{ form.non_field_errors }}
+    {% include 'core/includes/all_form_error.html'%}
 
     <div class="row mt-3 mb-3">
         <div class="col">

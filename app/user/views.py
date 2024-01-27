@@ -10,10 +10,11 @@ from django.views.generic import CreateView, TemplateView, ListView
 from django.utils.translation import gettext_lazy as _
 
 from core.models import Ticket, Trip
+from core.utils import FormInvalidMixin
 from user.forms import *
 
 
-class RegisterUser(CreateView):
+class RegisterUser(FormInvalidMixin, CreateView):
     form_class = RegisterClientForm
     template_name = "user/register.html"
 
@@ -28,7 +29,7 @@ class RegisterUser(CreateView):
         return context
 
 
-class LoginUser(LoginView):
+class LoginUser(FormInvalidMixin, LoginView):
     form_class = CustomAuthenticationForm
     template_name = "user/login.html"
 

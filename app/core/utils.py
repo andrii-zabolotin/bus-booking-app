@@ -8,6 +8,14 @@ def calculate_remaining_seats(trip):
     return trip.bus.number_of_seats - sold_tickets_count
 
 
+class FormInvalidMixin:
+    def form_invalid(self, form):
+        for key, value in form.errors.items():
+            if key != "__all__":
+                form.fields[key].widget.attrs["class"] = "form-control is-invalid"
+        return super().form_invalid(form)
+
+
 class PartnerRequiredMixin(UserPassesTestMixin):
     login_url = "/user/login"
 

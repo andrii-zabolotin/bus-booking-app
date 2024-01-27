@@ -11,10 +11,10 @@ from django.utils import timezone
 from django.views import View
 from slugify import slugify
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, FormView
 
 from core.models import Company, Bus, Partner, Trip, Ticket, Station
-from core.utils import PartnerRequiredMixin
+from core.utils import PartnerRequiredMixin, FormInvalidMixin
 from partner.forms import (
     CreateBusForm,
     CompanyForm,
@@ -51,6 +51,18 @@ def partner_registration(request):
                     request, "An error occurred during registration. Please try again."
                 )
                 transaction.set_rollback(True)
+        else:
+            for key, value in user_form.errors.items():
+                if key != "__all__":
+                    user_form.fields[key].widget.attrs[
+                        "class"
+                    ] = "form-control is-invalid"
+            for key, value in company_form.errors.items():
+                if key != "__all__":
+                    company_form.fields[key].widget.attrs[
+                        "class"
+                    ] = "form-control is-invalid"
+
     else:
         user_form = RegisterClientForm()
         company_form = CompanyForm()
@@ -88,6 +100,12 @@ def partner_subaccount_registration(request):
                     request, "An error occurred during registration. Please try again."
                 )
                 transaction.set_rollback(True)
+        else:
+            for key, value in user_form.errors.items():
+                if key != "__all__":
+                    user_form.fields[key].widget.attrs[
+                        "class"
+                    ] = "form-control is-invalid"
     else:
         user_form = RegisterClientForm()
 
@@ -142,7 +160,7 @@ class BusView(PartnerRequiredMixin, ListView):
     """
 
     model = Bus
-    template_name = "partner/bus.html"
+    template_name = "partner/bus_list.html"
     context_object_name = "bus_list"
 
     def get_queryset(self):
@@ -301,7 +319,7 @@ class BusView(PartnerRequiredMixin, ListView):
             bus.past_trip_count = past_trip_count_dict.get(bus.id, 0)
 
 
-class CreateBusView(PartnerRequiredMixin, CreateView):
+class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     """
     View for creating a new bus.
     """
@@ -315,11 +333,6 @@ class CreateBusView(PartnerRequiredMixin, CreateView):
         obj.company = Company.objects.get(partner__user=self.request.user)
         obj.save()
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        for key, value in form.errors.items():
-            form.fields[key].widget.attrs["class"] = "form-control is-invalid"
-        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -395,7 +408,7 @@ class PastTripView(TripBaseView):
         return context
 
 
-class CreateTripView(PartnerRequiredMixin, CreateView):
+class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     """
     View for creating a new trip.
     """
@@ -465,7 +478,7 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
         return context
 
 
-class StationCreateView(PartnerRequiredMixin, CreateView):
+class StationCreateView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     form_class = StationCreateFrom
     template_name = "station_create.html"
     success_url = "/partner/station/list/"

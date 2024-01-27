@@ -2,21 +2,25 @@
 
 {% block content %}
 <div class="container mt-4">
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
-        <div>{{ form.non_field_errors }}</div>
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% for f in user_form %}
+        {% include 'core/includes/all_form_error.html'%}
+        {% for field in user_form %}
             <div class="row d-flex justify-content-center">
                 <div class="col-4">
-                    <label class="form-label" for="{{forloop.counter}}">{{f.label}}</label>
-                    <span id="{{forloop.counter}}">{{f}}</span>
+                    <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
+                    <span id={{field.name}}>{{field}}</span>
+                    {% if field.name in user_form.errors.keys %}
+                        <div class="text-danger small">
+                            {% for f, errors in user_form.errors.items %}
+                                {% if f == field.name %}
+                                    {% for error in errors %}
+                                        {{error}}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

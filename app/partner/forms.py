@@ -180,20 +180,11 @@ class CreateUpdateTripForm(forms.ModelForm):
         start_point = cleaned_data.get("start_point")
         price = cleaned_data.get("price")
 
-        if timedate_departure >= timedate_arrival:
-            raise ValidationError(
-                _("Дата приїзду повинна бути більша ніж дата від'їзду.")
-            )
-
-        if departure_station.city != start_point:
-            raise ValidationError(
-                _("Станція від'їзду повинна бути розташована в місті від'їзду.")
-            )
-
-        if arrival_station.city != end_point:
-            raise ValidationError(
-                _("Станція приїзду повинна бути розташована в місті приїзду.")
-            )
+        if timedate_departure and timedate_arrival:
+            if timedate_departure >= timedate_arrival:
+                raise ValidationError(
+                    _("Дата приїзду повинна бути більша ніж дата від'їзду.")
+                )
 
         return cleaned_data
 
