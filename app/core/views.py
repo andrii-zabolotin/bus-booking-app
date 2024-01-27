@@ -1,6 +1,11 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, JsonResponse
+from django.core.exceptions import PermissionDenied
+from django.http import (
+    JsonResponse,
+    Http404,
+    HttpResponseNotFound,
+)
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -127,7 +132,16 @@ def checkout(request, trip_pk):
     """
     trip = Trip.objects.get(pk=trip_pk)
     passengers_quantity = request.session.get("passengers_quantity", 1)
+    available_seats = (
+        trip.bus.number_of_seats
+        - Ticket.objects.filter(trip=trip, returned=False).count()
+    )
     price = trip.price * passengers_quantity
+    if trip.timedate_departure < timezone.now():
+        return HttpResponseNotFound()
+
+    if available_seats < passengers_quantity:
+        raise PermissionDenied("Not enough available seats")
 
     if request.method == "POST":
         passenger_forms = [
@@ -191,4 +205,11 @@ def pageForbidden(request, exception):
     """
     View for handling forbidden (403) requests.
     """
-    return render(request, "403.html")
+    return render(request, "403.html", status=403)
+
+
+def pageNotFound(request, exception):
+    """
+    View for handling not found (404) requests.
+    """
+    return render(request, "404.html", status=404)

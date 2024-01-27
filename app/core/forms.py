@@ -87,9 +87,3 @@ class CitySelectionForm(forms.Form):
             )
 
         return cleaned_data
-
-
-# class TicketPurchase(forms.ModelForm):
-#     class Meta:
-#         model = Ticket
-#         fields = ("first_name", "last_name", "email", "phone")

@@ -6,7 +6,7 @@
         <span class="fs-4 fw-bold">Оформлення квитка</span>
     </div>
 </div>
-<form method="post" action="{% url 'core:checkout' trip_pk=trip.pk %} novalidate">
+<form method="post" action="{% url 'core:checkout' trip_pk=trip.pk %}" novalidate>
     {% csrf_token %}
     <div class="row">
         <div class="col-6">

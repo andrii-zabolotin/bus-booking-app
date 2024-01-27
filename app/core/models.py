@@ -90,7 +90,7 @@ class Bus(models.Model):
     )
 
     def __str__(self):
-        return f"{self.licence_plate}, {self.company}"
+        return f"{self.licence_plate}, {self.company}, {self.brand}"
 
 
 class Trip(models.Model):

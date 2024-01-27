@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import pageForbidden, AjaxGetStationsView
+from core.views import pageForbidden, AjaxGetStationsView, pageNotFound
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,3 +29,4 @@ urlpatterns = [
 ]
 
 handler403 = pageForbidden
+handler404 = pageNotFound
