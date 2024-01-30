@@ -4,41 +4,26 @@
     {% if trips_list %}
         <div class="row">
             <div class="col">
-                <form method="get" action="{% url 'partner:buses' %}">
-                    <div class="row">
-                        <div class="col">
-                            <input
-                                    type="text"
-                                    name="licence_plate"
-                                    class="form-control"
-                                    value="{{ licence_plate_value }}"
-                                    placeholder="Номерний знак"
-                                    onkeypress="return event.charCode != 32"/>
-                        </div>
-                        <div class="col d-flex justify-content-start">
-                            <button type="submit" class="btn btn-danger">Знайти</button>
-                        </div>
-                    </div>
-                </form>
+                <h3 class="mt-2">{{title}}</h3>
             </div>
-            <div class="col d-flex justify-content-end ">
-                <a href="{% url 'partner:buses'%}"><button class="btn btn-danger">Прибрати фільтрування</button></a>
+            <div class="col">
+                {% include 'core/includes/sort.html'%}
             </div>
         </div>
         {% for trip in trips_list %}
             {% include 'partner/includes/ticket_partner_profile.html' with trip=trip edit=edit %}
         {% endfor %}
     {% else %}
-    <div class="row">
-        <div class="col d-flex justify-content-center mt-3">
-            <span class="fs-4 fw-bold">Тут можуть бути ваші рейси</span>
+        <div class="row">
+            <div class="col d-flex justify-content-center mt-3">
+                <span class="fs-4 fw-bold">Немає рейсів</span>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col d-flex justify-content-center mt-3">
-            <a href="{% url 'partner:trip_create' %}"><button class="btn btn-danger text-light">Додати Рейс</button></a>
+        <div class="row">
+            <div class="col d-flex justify-content-center mt-3">
+                <a href="{% url 'partner:trip_create' %}"><button class="btn btn-danger text-light">Додати Рейс</button></a>
+            </div>
         </div>
-    </div>
     {% endif %}
 
     {% if page_obj.has_other_pages %} <!-- pagination -->

@@ -91,6 +91,10 @@ def home_page(request):
             queryset = [
                 trip for trip in queryset if trip.remaining_seats >= passengers_quantity
             ]
+        else:
+            for key, value in form.errors.items():
+                if key != "__all__":
+                    form.fields[key].widget.attrs["class"] = "form-control is-invalid"
     else:
         passengers_quantity = request.session.get("passengers_quantity", None)
         start_point = request.session.get("start_point", None)
@@ -176,7 +180,7 @@ def checkout(request, trip_pk):
                     ticket_data["trip_id"] = trip_pk
                     Ticket.objects.create(**ticket_data)
 
-        return redirect("user:profile")
+        return redirect("user:future")
 
     else:
         if not request.user.is_authenticated:

@@ -101,7 +101,8 @@ def user_profile(request):
         "user/profile.html",
         context={
             "future_trips_with_tickets": trips_with_tickets,
-            "active_tab": "profile",
+            "active_tab": "future",
+            "href": "user:future",
             "title": _("Майбутні поїздки"),
         },
     )
@@ -134,17 +135,33 @@ def user_contact(request):
 @login_required(login_url="/user/login")
 @not_partner_required
 def user_history(request):
-    user_past_trips = (
-        Ticket.objects.filter(
-            user=request.user,
-            trip__timedate_departure__lt=timezone.now(),
-            returned=False,
-        )
-        .values_list("trip", flat=True)
-        .distinct()
-    )
-
     trips_with_tickets = []
+    sort_type = request.GET.get("sort_type", None)
+    if sort_type:
+        if sort_type == "ASC":
+            sort = "trip__timedate_departure"
+        else:
+            sort = "-trip__timedate_departure"
+        user_past_trips = (
+            Ticket.objects.filter(
+                user=request.user,
+                trip__timedate_departure__lt=timezone.now(),
+                returned=False,
+            )
+            .values_list("trip", flat=True)
+            .distinct()
+        ).order_by(sort)
+    else:
+        user_past_trips = (
+            Ticket.objects.filter(
+                user=request.user,
+                trip__timedate_departure__lt=timezone.now(),
+                returned=False,
+            )
+            .values_list("trip", flat=True)
+            .distinct()
+        )
+
     for trip in user_past_trips:
         obj = Trip.objects.get(pk=trip)
         tickets = Ticket.objects.filter(user=request.user, trip=trip, returned=False)
@@ -156,6 +173,8 @@ def user_history(request):
         context={
             "past_trips_with_tickets": trips_with_tickets,
             "active_tab": "history",
+            "href": "user:history",
+            "sort_type": sort_type,
             "title": _("Минулі поїздки"),
         },
     )

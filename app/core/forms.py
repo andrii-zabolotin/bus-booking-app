@@ -81,9 +81,7 @@ class CitySelectionForm(forms.Form):
         start_point = cleaned_data.get("start_point")
         end_point = cleaned_data.get("end_point")
 
-        if start_point == end_point:
-            raise ValidationError(
-                _("Початковий та кінцевий пункти мають бути різними.")
-            )
+        if start_point and end_point and start_point == end_point:
+            raise ValidationError(_("Початковий та кінцевий пункт мають бути різними."))
 
         return cleaned_data

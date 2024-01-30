@@ -5,20 +5,15 @@
     <div class="row">
         <div class="col shadow-sm p-3 bg-body rounded">
             <div class="row">
-                <div class="col">Телефен: {{user.phone}}</div>
+                <div class="col"><span class="text-muted">Телефен:</span> {{user.phone}}</div>
             </div>
             <div class="row">
                 <div class="col">
-                {% if user.email%}
-                    Пошта: {{user.email}}
-                {% else %}
-                    Пошта: -
-                {% endif %}
+                    <span class="text-muted">Пошта:</span> {{user.email}}
                 </div>
             </div>
         </div>
-        <div class="col-1"></div>
-        <div class="col shadow-sm p-3 bg-body rounded">
+        <div class="col shadow-sm p-3 ms-3 bg-body rounded">
             <form method="POST" action="{% url 'user:contact'%}">
                 {% csrf_token %}
                 <div>{{ form.non_field_errors }}</div>
@@ -30,7 +25,7 @@
                         </div>
                     </div>
                     {% endfor %}
-                <button class="btn btn-primary btn-sm mt-2" type="submit">Зберегти</button>
+                <button class="btn btn-danger btn-sm mt-2" type="submit">Зберегти</button>
             </form>
         </div>
     </div>

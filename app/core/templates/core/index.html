@@ -31,18 +31,10 @@
 
 {% block search %}
 {{form.media}}
-<div class="container pt-4 pb-5">
-    <form method="post" action="{% url 'core:home'%}">
+<div class="container pt-4 pb-3">
+    <form method="post" action="{% url 'core:home'%}" novalidate>
         {% csrf_token %}
-        <div class="row">
-            <div class="col p-0"> <!-- Ошибка-->
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger font-monospace p-0 pt-2" role="alert">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        {% include 'core/includes/all_form_error.html'%}
         <div class="row">
             <div class="col-md-10 col-12">
                     <div class="row gx-0 justify-content-center">
@@ -130,17 +122,17 @@
     {% else %}
             <div class="container">
                 <div class="row py-3 d-flex justify-content-center align-items-center">
-                    <div class="col-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="blue" class="bi bi-search" viewBox="0 0 16 16">
+                    <div class="col-1 text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
                         </svg>
                     </div>
                     <div class="col-5">
                         <div class="row">
-                            <h2> Квитки не знайдені </h2>
+                            <h2 class="text-muted"> Квитки не знайдені </h2>
                         </div>
                         <div class="row">
-                            <span class="fw-lighter">Ми не знайшли квитків на обрану дату.</span>
+                            <span class="fw-lighter text-muted">Ми не знайшли квитків на обрану дату.</span>
                         </div>
                     </div>
                 </div>

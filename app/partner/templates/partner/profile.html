@@ -10,34 +10,16 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">Телефен: {{user.phone}}</div>
+                <div class="col">
+                    <div class="col"><span class="text-muted">Телефен:</span> {{user.phone}}</div>
+                </div>
             </div>
             <div class="row">
                 <div class="col">
-                {% if user.email%}
-                    Пошта: {{user.email}}
-                {% else %}
-                    Пошта: -
-                {% endif %}
+                    <span class="text-muted">Пошта:</span> {{user.email}}
                 </div>
             </div>
         </div>
-        <div class="col-1"></div>
-        <!--div class="col shadow-sm p-3 bg-body rounded">
-            <form method="POST" action="{% url 'partner:profile'%}">
-                {% csrf_token %}
-                <div>{{ form.non_field_errors }}</div>
-                {% for f in form %}
-                    <div class="col">
-                        <div class="form-floating">
-                            {{ f }}
-                            <label for="floatingInputGrid">Змінити пошту:</label>
-                        </div>
-                    </div>
-                    {% endfor %}
-                <button class="btn btn-primary btn-sm mt-2" type="submit">Зберегти</button>
-            </form>
-        </div-->
     </div>
 </div>
 {% endblock %}

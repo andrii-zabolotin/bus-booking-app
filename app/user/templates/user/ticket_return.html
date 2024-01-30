@@ -73,7 +73,7 @@
             <form method="post" action="{% url 'user:ticket_return' ticket_pk=ticket_pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-block btn-danger text-light mx-3">Здати білет</button>
-                <a href="{% url 'user:profile'%}"><button type="button" class="btn btn-block btn-danger text-light mx-3">Відмовитись</button></a>
+                <a href="{% url 'user:future'%}"><button type="button" class="btn btn-block btn-danger text-light mx-3">Відмовитись</button></a>
             </form>
         </div>
     </div>

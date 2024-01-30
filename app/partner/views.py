@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.views import View
 from slugify import slugify
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, CreateView, UpdateView, FormView
+from django.views.generic import ListView, CreateView, UpdateView
 
 from core.models import Company, Bus, Partner, Trip, Ticket, Station
 from core.utils import PartnerRequiredMixin, FormInvalidMixin
@@ -321,12 +321,12 @@ class BusView(PartnerRequiredMixin, ListView):
 
 class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     """
-    View for creating a new bus.
+    View for creating a new bus.R
     """
 
     form_class = CreateBusForm
     template_name = "bus_create.html"
-    success_url = "/partner/buses/"
+    success_url = "/partner/bus/list/"
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -367,18 +367,32 @@ class FutureTripView(TripBaseView):
     template_name = "partner/trips_list.html"
 
     def get_queryset(self):
-        return (
-            Trip.objects.select_related("bus__company")
-            .filter(
+        sort_type = self.request.GET.get("sort_type", None)
+        if sort_type:
+            if sort_type == "ASC":
+                sort = "timedate_departure"
+            else:
+                sort = "-timedate_departure"
+            return (
+                Trip.objects.select_related("bus__company")
+                .filter(
+                    bus__company__partner__user=self.request.user,
+                    timedate_departure__gt=datetime.now(),
+                )
+                .order_by(sort)
+            )
+        else:
+            return Trip.objects.select_related("bus__company").filter(
                 bus__company__partner__user=self.request.user,
                 timedate_departure__gt=datetime.now(),
             )
-            .order_by("timedate_departure")
-        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         trips = context["trips_list"]
+        context["title"] = "Майбутні рейси"
+        context["href"] = "partner:future_trips"
+        context["sort_type"] = self.request.GET.get("sort_type", None)
         for trip in trips:
             trip.edit = not Ticket.objects.filter(trip=trip).exists()
 
@@ -393,18 +407,32 @@ class PastTripView(TripBaseView):
     template_name = "partner/trips_list.html"
 
     def get_queryset(self):
-        return (
-            Trip.objects.select_related("bus__company")
-            .filter(
+        sort_type = self.request.GET.get("sort_type", None)
+        if sort_type:
+            if sort_type == "ASC":
+                sort = "timedate_departure"
+            else:
+                sort = "-timedate_departure"
+            return (
+                Trip.objects.select_related("bus__company")
+                .filter(
+                    bus__company__partner__user=self.request.user,
+                    timedate_departure__lt=datetime.now(),
+                )
+                .order_by(sort)
+            )
+        else:
+            return Trip.objects.select_related("bus__company").filter(
                 bus__company__partner__user=self.request.user,
                 timedate_departure__lt=datetime.now(),
             )
-            .order_by("-timedate_departure")
-        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["edit"] = False
+        context["title"] = "Минулі рейси"
+        context["href"] = "partner:past_trips"
+        context["sort_type"] = self.request.GET.get("sort_type", None)
         return context
 
 
@@ -415,7 +443,7 @@ class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
 
     form_class = CreateUpdateTripForm
     template_name = "trip_create.html"
-    success_url = "/partner/future_trips/"
+    success_url = "/partner/trips/future/"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -436,7 +464,7 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Trip
     template_name = "partner/trip_update.html"
     form_class = CreateUpdateTripForm
-    success_url = "/partner/future_trips/"
+    success_url = "/partner/trips/future/"
     pk_url_kwarg = "trip_pk"
 
     def test_func(self):
