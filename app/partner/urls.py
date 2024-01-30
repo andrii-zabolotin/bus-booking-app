@@ -7,6 +7,7 @@ urlpatterns = [
     path("profile/", PartnerProfileView.as_view(), name="profile"),
     path("bus/list/", BusView.as_view(), name="buses"),
     path("bus/create/", CreateBusView.as_view(), name="bus_create"),
+    path("trips/", TripView.as_view(), name="trips"),
     path("trips/future/", FutureTripView.as_view(), name="future_trips"),
     path("trips/past/", PastTripView.as_view(), name="past_trips"),
     path("trip/create/", CreateTripView.as_view(), name="trip_create"),

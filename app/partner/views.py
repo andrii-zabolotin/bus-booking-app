@@ -359,6 +359,43 @@ class TripBaseView(PartnerRequiredMixin, ListView):
         return context
 
 
+class TripView(TripBaseView):
+    template_name = "partner/trips_list.html"
+
+    def get_queryset(self):
+        sort_type = self.request.GET.get("sort_type", None)
+        if sort_type:
+            if sort_type == "ASC":
+                sort = "timedate_departure"
+            else:
+                sort = "-timedate_departure"
+            return (
+                Trip.objects.select_related("bus__company")
+                .filter(
+                    bus__company__partner__user=self.request.user,
+                )
+                .order_by(sort)
+            )
+        else:
+            return Trip.objects.select_related("bus__company").filter(
+                bus__company__partner__user=self.request.user,
+            )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        trips = context["trips_list"]
+        context["title"] = "Рейси"
+        context["href"] = "partner:trips"
+        context["sort_type"] = self.request.GET.get("sort_type", None)
+        for trip in trips:
+            trip.edit = not Ticket.objects.filter(trip=trip).exists()
+            if trip.timedate_departure < timezone.now():
+                trip.edit = False
+            else:
+                trip.edit = True
+            return context
+
+
 class FutureTripView(TripBaseView):
     """
     View for displaying a list of future trips.
