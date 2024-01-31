@@ -1,6 +1,21 @@
 {% extends  'partner/base.html' %}
 
 {% block content %}
+    <div class="container my-2 rounded shadow-sm bg-body pb-3 px-3">
+        <form method="get" action="{% url 'partner:trips'%}" novalidate>
+            <div class="row">
+                {% for field in form %}
+                    <div class="col">
+                        <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
+                        {{field}}
+                    </div>
+                {% endfor %}
+                <div class="col d-grid align-items-end">
+                    <button type="submit" class="btn btn-block btn-danger text-light">Пошук</button>
+                </div>
+            </div>
+        </form>
+    </div>
     {% if trips_list %}
         <div class="row">
             <div class="col">

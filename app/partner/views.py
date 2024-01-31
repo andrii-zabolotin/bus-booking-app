@@ -20,6 +20,7 @@ from partner.forms import (
     CompanyForm,
     CreateUpdateTripForm,
     StationCreateFrom,
+    TripSearchForm,
 )
 from user.forms import RegisterClientForm
 
@@ -340,71 +341,68 @@ class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
         return context
 
 
-class TripBaseView(PartnerRequiredMixin, ListView):
-    """
-    Base view for displaying a list of trips with associated tickets.
-    """
-
+class TripView(PartnerRequiredMixin, ListView):
     model = Trip
     context_object_name = "trips_list"
     paginate_by = 5
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["active_tab"] = "trips"
-        for trip in context["trips_list"]:
-            trip.tickets = trip.ticket_set.filter(
-                returned=False
-            )  # reverse relationship
-        return context
-
-
-class TripView(TripBaseView):
     template_name = "partner/trips_list.html"
 
-    def get_queryset(self):
-        sort_type = self.request.GET.get("sort_type", None)
-        if sort_type:
-            if sort_type == "ASC":
-                sort = "timedate_departure"
-            else:
-                sort = "-timedate_departure"
-            return (
-                Trip.objects.select_related("bus__company")
-                .filter(
-                    bus__company__partner__user=self.request.user,
-                )
-                .order_by(sort)
-            )
-        else:
-            return Trip.objects.select_related("bus__company").filter(
-                bus__company__partner__user=self.request.user,
-            )
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        trips = context["trips_list"]
+        query_params = self.request.GET
+        form_params = {
+            "id": query_params.get("id", None),
+            "start_point": query_params.get("start_point", None),
+            "end_point": query_params.get("end_point", None),
+            "date": query_params.get("date", None),
+        }
+        context["form"] = TripSearchForm(**form_params)
+
+        context["active_tab"] = "trips"
         context["title"] = "Рейси"
         context["href"] = "partner:trips"
         context["sort_type"] = self.request.GET.get("sort_type", None)
+
+        trips = context["trips_list"]
         for trip in trips:
             trip.edit = not Ticket.objects.filter(trip=trip).exists()
             if trip.timedate_departure < timezone.now():
                 trip.edit = False
             else:
                 trip.edit = True
-            return context
+        for trip in context["trips_list"]:
+            trip.tickets = trip.ticket_set.filter(
+                returned=False
+            )  # reverse relationship
 
-
-class FutureTripView(TripBaseView):
-    """
-    View for displaying a list of future trips.
-    """
-
-    template_name = "partner/trips_list.html"
+        return context
 
     def get_queryset(self):
+        type = self.request.GET.get("type", None)
         sort_type = self.request.GET.get("sort_type", None)
+        id = self.request.GET.get("id", None)
+        start_point = self.request.GET.get("start_point", None)
+        end_point = self.request.GET.get("end_point", None)
+        date = self.request.GET.get("date", None)
+        sort_params = {}
+
+        if id:
+            sort_params["id"] = id
+
+        if start_point:
+            sort_params["start_point"] = start_point
+
+        if end_point:
+            sort_params["end_point"] = end_point
+
+        if date:
+            sort_params["timedate_departure__date"] = date
+
+        if type == "future":
+            sort_params["timedate_departure__gt"] = datetime.now()
+        elif type == "past":
+            sort_params["timedate_departure__lt"] = datetime.now()
+
         if sort_type:
             if sort_type == "ASC":
                 sort = "timedate_departure"
@@ -412,65 +410,13 @@ class FutureTripView(TripBaseView):
                 sort = "-timedate_departure"
             return (
                 Trip.objects.select_related("bus__company")
-                .filter(
-                    bus__company__partner__user=self.request.user,
-                    timedate_departure__gt=datetime.now(),
-                )
+                .filter(bus__company__partner__user=self.request.user, **sort_params)
                 .order_by(sort)
             )
         else:
             return Trip.objects.select_related("bus__company").filter(
-                bus__company__partner__user=self.request.user,
-                timedate_departure__gt=datetime.now(),
+                bus__company__partner__user=self.request.user, **sort_params
             )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        trips = context["trips_list"]
-        context["title"] = "Майбутні рейси"
-        context["href"] = "partner:future_trips"
-        context["sort_type"] = self.request.GET.get("sort_type", None)
-        for trip in trips:
-            trip.edit = not Ticket.objects.filter(trip=trip).exists()
-
-        return context
-
-
-class PastTripView(TripBaseView):
-    """
-    View for displaying a list of past trips.
-    """
-
-    template_name = "partner/trips_list.html"
-
-    def get_queryset(self):
-        sort_type = self.request.GET.get("sort_type", None)
-        if sort_type:
-            if sort_type == "ASC":
-                sort = "timedate_departure"
-            else:
-                sort = "-timedate_departure"
-            return (
-                Trip.objects.select_related("bus__company")
-                .filter(
-                    bus__company__partner__user=self.request.user,
-                    timedate_departure__lt=datetime.now(),
-                )
-                .order_by(sort)
-            )
-        else:
-            return Trip.objects.select_related("bus__company").filter(
-                bus__company__partner__user=self.request.user,
-                timedate_departure__lt=datetime.now(),
-            )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["edit"] = False
-        context["title"] = "Минулі рейси"
-        context["href"] = "partner:past_trips"
-        context["sort_type"] = self.request.GET.get("sort_type", None)
-        return context
 
 
 class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):

@@ -4,7 +4,7 @@ register = template.Library()
 
 
 @register.filter(name="query_transform")
-def query_transform(request, **kwargs):
+def query_transform(request, param, **kwargs):
     """usages: {% query_transform request page=1 %}"""
     updated = request.GET.copy()
 
@@ -13,7 +13,7 @@ def query_transform(request, **kwargs):
 
     # trash any pjax params, we never want to render those
     try:
-        del updated["page"]
+        del updated[param]
     except KeyError:
         pass
 

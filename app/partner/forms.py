@@ -259,3 +259,53 @@ class StationCreateFrom(forms.ModelForm):
             raise ValidationError(
                 _(f"Станція з такою адресою вже існує в місті {city.city}")
             )
+
+
+class TripSearchForm(forms.Form):
+    id = forms.IntegerField(
+        widget=forms.NumberInput(
+            attrs={"class": "form-control", "id": "id"},
+        )
+    )
+    start_point = forms.ModelChoiceField(
+        queryset=City.objects.all(),
+        label=_("Звідки"),
+        empty_label=_("Виберіть місто"),
+        widget=forms.Select(
+            attrs={"class": "form-select", "id": "start_point"},
+        ),
+    )
+    end_point = forms.ModelChoiceField(
+        queryset=City.objects.all(),
+        label=_("Куди"),
+        empty_label=_("Виберіть місто"),
+        widget=forms.Select(
+            attrs={"class": "form-select", "id": "end_point"},
+        ),
+    )
+    date = forms.DateField(
+        label=_("Дата поїздки"),
+        widget=forms.DateInput(
+            attrs={
+                "type": "date",
+                "class": "form-control datepicker",
+                "id": "date",
+                "value": timezone.now().strftime("%Y-%m-%d"),
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        id_value = kwargs.pop("id", None)
+        start_point_value = kwargs.pop("start_point", None)
+        end_point_value = kwargs.pop("end_point", None)
+        date_value = kwargs.pop("date", None)
+
+        # Call the super().__init__ method to initialize the form
+        super(TripSearchForm, self).__init__(*args, **kwargs)
+
+        # Set initial values for the fields based on the provided parameters
+        self.fields["id"].initial = id_value
+        self.fields["start_point"].initial = start_point_value
+        self.fields["end_point"].initial = end_point_value
+        self.fields["date"].initial = date_value

@@ -1,9 +1,10 @@
+{% load my_filters %}
 <div class="row">
   <div class="col d-flex justify-content-end">
       <nav class="navbar navbar-expand-lg navbar-light">
           <div class="container-fluid p-0">
               <ul class="navbar-nav me-auto mb-lg-0">
-                  <li><a class="nav-link {% if sort_type == 'ASC' %}active border-bottom border-dark border-2{% endif %}" href="{% url href %}?sort_type=ASC">
+                  <li><a class="nav-link {% if sort_type == 'ASC' %}active border-bottom border-dark border-2{% endif %}" href="{% url href %}?sort_type=ASC{% if request|query_transform:'sort_type' %}&{% endif %}{{request|query_transform:'sort_type'}}">
                       Дата
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                            class="bi bi-sort-numeric-down" viewBox="0 0 16 16">
@@ -13,7 +14,7 @@
                           <path d="M4.5 2.5a.5.5 0 0 0-1 0v9.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L4.5 12.293z"/>
                       </svg>
                   </a></li>
-                  <li><a class="nav-link {% if sort_type == 'DESC' %}active border-bottom border-dark border-2{% endif %}" href="{% url href %}?sort_type=DESC">
+                  <li><a class="nav-link {% if sort_type == 'DESC' %}active border-bottom border-dark border-2{% endif %}" href="{% url href %}?sort_type=DESC{% if request|query_transform:'sort_type' %}&{% endif %}{{request|query_transform:'sort_type'}}">
                       Дата
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                            class="bi bi-sort-numeric-up" viewBox="0 0 16 16">

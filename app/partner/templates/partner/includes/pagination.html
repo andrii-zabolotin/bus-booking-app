@@ -3,7 +3,7 @@
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous%}
             <li class="page-item">
-                <a class="page-link" href="?page={{page_obj.previous_page_number}}{{request|query_transform}}" aria-label="Previous">
+                <a class="page-link" href="?page={{page_obj.previous_page_number}}{% if request|query_transform:'page' %}&{% endif %}{{request|query_transform:'page'}}" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -16,14 +16,14 @@
         {% endif %}
         {% for i in paginator.page_range%}
             {% if page_obj.number == i %}
-                <li class="page-item active"><a class="page-link" href="?page={{i}}&{{request|query_transform}}">{{i}}</a></li>
+                <li class="page-item active"><a class="page-link" href="?page={{i}}{% if request|query_transform:'page' %}&{% endif %}{{request|query_transform:'page'}}">{{i}}</a></li>
             {% elif i >= page_obj.number|add:"-2" and i <= page_obj.number|add:"2" %}
-                <li class="page-item"><a class="page-link" href="?page={{i}}&{{request|query_transform}}">{{i}}</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{i}}{% if request|query_transform:'page' %}&{% endif %}{{request|query_transform:'page'}}">{{i}}</a></li>
             {% endif %}
         {% endfor %}
         {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{page_obj.next_page_number}}{{request|query_transform}}" aria-label="Next">
+                <a class="page-link" href="?page={{page_obj.next_page_number}}{% if request|query_transform:'page' %}&{% endif %}{{request|query_transform:'page'}}" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
