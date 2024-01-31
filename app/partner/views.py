@@ -426,7 +426,7 @@ class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
 
     form_class = CreateUpdateTripForm
     template_name = "trip_create.html"
-    success_url = "/partner/trips/future/"
+    success_url = "/partner/trips?type=future"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -447,7 +447,7 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Trip
     template_name = "partner/trip_update.html"
     form_class = CreateUpdateTripForm
-    success_url = "/partner/trips/future/"
+    success_url = "/partner/trips?type=future"
     pk_url_kwarg = "trip_pk"
 
     def test_func(self):

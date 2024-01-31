@@ -263,7 +263,7 @@ class StationCreateFrom(forms.ModelForm):
 
 class TripSearchForm(forms.Form):
     id = forms.IntegerField(
-        widget=forms.NumberInput(
+        widget=forms.HiddenInput(
             attrs={"class": "form-control", "id": "id"},
         )
     )

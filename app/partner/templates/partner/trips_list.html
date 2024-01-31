@@ -5,10 +5,12 @@
         <form method="get" action="{% url 'partner:trips'%}" novalidate>
             <div class="row">
                 {% for field in form %}
-                    <div class="col">
-                        <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
-                        {{field}}
-                    </div>
+                    {% if field.label != 'Id'%}
+                        <div class="col">
+                            <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
+                            {{field}}
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 <div class="col d-grid align-items-end">
                     <button type="submit" class="btn btn-block btn-danger text-light">Пошук</button>
