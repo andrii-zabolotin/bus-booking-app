@@ -365,8 +365,10 @@ class TripView(PartnerRequiredMixin, ListView):
 
         trips = context["trips_list"]
         for trip in trips:
-            trip.edit = not Ticket.objects.filter(trip=trip).exists()
-            if trip.timedate_departure < timezone.now():
+            if (
+                trip.timedate_departure < timezone.now()
+                or Ticket.objects.filter(trip=trip).exists()
+            ):
                 trip.edit = False
             else:
                 trip.edit = True
