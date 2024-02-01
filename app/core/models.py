@@ -41,7 +41,7 @@ class Station(models.Model):
         max_length=255, verbose_name=_("Вулиця/Провулок...."), null=True
     )
     street = models.CharField(max_length=255, verbose_name=_("Назва"), null=True)
-    number = models.IntegerField(null=True)
+    number = models.CharField(null=True, max_length=255)
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, verbose_name=_("Місто"), null=True
     )

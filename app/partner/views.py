@@ -359,7 +359,13 @@ class TripView(PartnerRequiredMixin, ListView):
         context["form"] = TripSearchForm(**form_params)
 
         context["active_tab"] = "trips"
-        context["title"] = "Рейси"
+        type = query_params.get("type", None)
+        if type == "future":
+            context["title"] = "Майбутні рейси"
+        elif type == "past":
+            context["title"] = "Минулі рейси"
+        else:
+            context["title"] = "Рейси"
         context["href"] = "partner:trips"
         context["sort_type"] = self.request.GET.get("sort_type", None)
 
@@ -502,3 +508,46 @@ class StationListView(PartnerRequiredMixin, ListView):
     template_name = "station_list.html"
     context_object_name = "stations"
     paginate_by = 30
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context["form"] = StationCreateFrom()
+        context["title"] = "Станції"
+
+        query_params = self.request.GET
+        form_params = {
+            "station": query_params.get("station", None),
+            "street_type": query_params.get("street_type", None),
+            "street": query_params.get("street", None),
+            "number": query_params.get("number", None),
+            "city": query_params.get("city", None),
+        }
+        context["form"] = StationCreateFrom(**form_params)
+
+        return context
+
+    def get_queryset(self):
+        station = self.request.GET.get("station", None)
+        street_type = self.request.GET.get("street_type", None)
+        street = self.request.GET.get("street", None)
+        number = self.request.GET.get("number", None)
+        city = self.request.GET.get("city", None)
+
+        sort_params = {}
+
+        if station:
+            sort_params["station"] = station
+
+        if street_type:
+            sort_params["street_type"] = street_type
+
+        if street:
+            sort_params["street"] = street
+
+        if number:
+            sort_params["number"] = number
+
+        if city:
+            sort_params["city"] = city
+
+        return Station.objects.filter(**sort_params)

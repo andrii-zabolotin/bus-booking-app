@@ -2,27 +2,29 @@
 
 {% block content %}
     {% if bus_list or request.GET.licence_plate%}
-        <div class="row">
-            <div class="col">
-                <form method="get" action="{% url 'partner:buses' %}">
-                    <div class="row">
-                        <div class="col">
-                            <input
-                                    type="text"
-                                    name="licence_plate"
-                                    class="form-control"
-                                    value="{{ licence_plate_value }}"
-                                    placeholder="Номерний знак"
-                                    onkeypress="return event.charCode != 32"/>
+        <div class="container p-3 rounded shadow-sm bg-body">
+            <div class="row">
+                <div class="col">
+                    <form method="get" action="{% url 'partner:buses' %}">
+                        <div class="row">
+                            <div class="col">
+                                <input
+                                        type="text"
+                                        name="licence_plate"
+                                        class="form-control"
+                                        value="{{ licence_plate_value }}"
+                                        placeholder="Номерний знак"
+                                        onkeypress="return event.charCode != 32"/>
+                            </div>
+                            <div class="col d-flex justify-content-start">
+                                <button type="submit" class="btn btn-danger">Знайти</button>
+                            </div>
                         </div>
-                        <div class="col d-flex justify-content-start">
-                            <button type="submit" class="btn btn-danger">Знайти</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col d-flex justify-content-end ">
-                <a href="{% url 'partner:buses'%}"><button class="btn btn-danger">Прибрати фільтрування</button></a>
+                    </form>
+                </div>
+                <div class="col d-flex justify-content-end ">
+                    <a href="{% url 'partner:buses'%}"><button class="btn btn-danger">Прибрати фільтрування</button></a>
+                </div>
             </div>
         </div>
         {% for bus in bus_list %}

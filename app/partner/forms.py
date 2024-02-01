@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
@@ -175,11 +176,6 @@ class CreateUpdateTripForm(forms.ModelForm):
         cleaned_data = super().clean()
         timedate_departure = cleaned_data.get("timedate_departure")
         timedate_arrival = cleaned_data.get("timedate_arrival")
-        departure_station = cleaned_data.get("departure_station")
-        arrival_station = cleaned_data.get("arrival_station")
-        end_point = cleaned_data.get("end_point")
-        start_point = cleaned_data.get("start_point")
-        price = cleaned_data.get("price")
 
         if timedate_departure and timedate_arrival:
             if timedate_departure >= timedate_arrival:
@@ -197,6 +193,7 @@ class StationCreateFrom(forms.ModelForm):
             attrs={
                 "placeholder": "Школа №1",
                 "class": "form-control",
+                "id": "station",
             }
         ),
     )
@@ -207,6 +204,7 @@ class StationCreateFrom(forms.ModelForm):
             attrs={
                 "placeholder": "Вулиця/Провулок",
                 "class": "form-control",
+                "id": "street_type",
             }
         ),
     )
@@ -217,18 +215,27 @@ class StationCreateFrom(forms.ModelForm):
             attrs={
                 "placeholder": "Котляревського",
                 "class": "form-control",
+                "id": "street",
             }
         ),
     )
 
-    number = forms.IntegerField(
+    number = forms.CharField(
         label=_("Номер"),
-        widget=forms.NumberInput(
+        widget=forms.TextInput(
             attrs={
                 "placeholder": "18",
                 "class": "form-control",
+                "id": "number",
             }
         ),
+        validators=[
+            RegexValidator(
+                regex=r"^[0-9-]+$",
+                message=_("Дозволені тільки цифри та тире."),
+                code="invalid_number",
+            ),
+        ],
     )
 
     city = forms.ModelChoiceField(
@@ -238,6 +245,7 @@ class StationCreateFrom(forms.ModelForm):
         widget=forms.Select(
             attrs={
                 "class": "form-select",
+                "id": "city",
             }
         ),
     )
@@ -259,6 +267,23 @@ class StationCreateFrom(forms.ModelForm):
             raise ValidationError(
                 _(f"Станція з такою адресою вже існує в місті {city.city}")
             )
+
+    def __init__(self, *args, **kwargs):
+        station_value = kwargs.pop("station", None)
+        street_type_value = kwargs.pop("street_type", None)
+        street_value = kwargs.pop("street", None)
+        number_value = kwargs.pop("number", None)
+        city_value = kwargs.pop("city", None)
+
+        # Call the super().__init__ method to initialize the form
+        super(StationCreateFrom, self).__init__(*args, **kwargs)
+
+        # Set initial values for the fields based on the provided parameters
+        self.fields["station"].initial = station_value
+        self.fields["street_type"].initial = street_type_value
+        self.fields["street"].initial = street_value
+        self.fields["number"].initial = number_value
+        self.fields["city"].initial = city_value
 
 
 class TripSearchForm(forms.Form):
