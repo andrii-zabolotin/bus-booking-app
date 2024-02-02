@@ -22,7 +22,7 @@
                     {% for field in form %}
                         <div class="col-6">
                             <label class="form-label mt-2" for={{field.name}}>{{field.label}}</label>
-                            <span id={{field.name}}>{{field}}</span>
+                            {{field}}
                             {% if field.name in form.errors.keys %}
                                 <div class="text-danger small">
                                     {% for f, errors in form.errors.items %}

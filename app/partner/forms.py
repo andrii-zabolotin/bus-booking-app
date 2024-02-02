@@ -315,7 +315,6 @@ class TripSearchForm(forms.Form):
                 "type": "date",
                 "class": "form-control datepicker",
                 "id": "date",
-                "value": timezone.now().strftime("%Y-%m-%d"),
             }
         ),
     )

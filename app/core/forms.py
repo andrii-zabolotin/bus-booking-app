@@ -10,11 +10,21 @@ from phonenumber_field.formfields import PhoneNumberField
 class BuyerInfoForm(forms.Form):
     email = forms.EmailField(
         label="E-mail",
-        widget=forms.TextInput(attrs={"placeholder": ("email@gmail.com")}),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": ("email@gmail.com"),
+                "id": "phone",
+            }
+        ),
     )
     phone = PhoneNumberField(
         label=_("Телефон"),
-        widget=forms.TextInput(attrs={"placeholder": ("+380 __ ___ __ __")}),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": ("+380 __ ___ __ __"),
+                "id": "email",
+            }
+        ),
     )
 
 
@@ -24,6 +34,7 @@ class PassagerInfoForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
+                "id": "first_name",
             }
         ),
     )
@@ -32,6 +43,7 @@ class PassagerInfoForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
+                "id": "last_name",
             }
         ),
     )
@@ -42,13 +54,23 @@ class CitySelectionForm(forms.Form):
         queryset=City.objects.all(),
         label=_("Звідки"),
         empty_label=_("Виберіть місто"),
-        widget=forms.Select(attrs={"class": "form-select", "id": "floatingSelect"}),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+                "id": "floatingSelect_start_point",
+            }
+        ),
     )
     end_point = forms.ModelChoiceField(
         queryset=City.objects.all(),
         label=_("Куди"),
         empty_label=_("Виберіть місто"),
-        widget=forms.Select(attrs={"class": "form-select"}),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+                "id": "floatingSelect_end_point",
+            }
+        ),
     )
     date = forms.DateField(
         label=_("Дата поїздки"),
