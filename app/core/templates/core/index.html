@@ -39,12 +39,14 @@
             <div class="col-md-10 col-12">
                     <div class="row gx-0 justify-content-center">
                         {% for f in form %}
-                        <div class="col-md-3 col-12"> <!-- Поля формы-->
-                                <div class="form-floating">
-                                    {{ f }}
-                                    <label for="floatingInputGrid">{{f.label}}</label>
+                            {% if f.label != "Start point pk" and f.label != "End point pk" %}
+                                <div class="col-md-3 col-12"> <!-- Поля формы-->
+                                        <div class="form-floating">
+                                            {{ f }}
+                                            <label for="floatingInputGrid">{{f.label}}</label>
+                                        </div>
                                 </div>
-                        </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
             </div>
@@ -140,4 +142,71 @@
     {% endif %}
     {% endif %}
 </div>
+
+<script>
+    var citiesData = JSON.parse('{{ cities|safe}}');
+    var availableCities = [];
+
+    var searchInput_1 = document.getElementById('search_data_start_point');
+    var searchInput_2 = document.getElementById('search_data_end_point');
+
+    function autocompleteSetup(source, inputElement) {
+        inputElement.addEventListener('input', function () {
+            var inputValue = this.value;
+            var matches = source.filter(function (item) {
+                return item.city.toLowerCase().startsWith(inputValue.toLowerCase());
+            });
+
+            if (matches.length > 0) {
+                var autocompleteList = document.createElement('ul');
+                autocompleteList.classList.add('autocomplete-list');
+
+                matches.forEach(function (match) {
+                    var listItem = document.createElement('li');
+                    listItem.textContent = match.city + ', ' + match.region + ' область, ' + match.country;
+                    autocompleteList.appendChild(listItem);
+                });
+
+                removeExistingAutocomplete();
+
+                this.parentNode.appendChild(autocompleteList);
+
+                autocompleteList.addEventListener('click', function (e) {
+                    if (e.target.tagName === 'LI') {
+                        inputElement.value = e.target.textContent;
+                        removeExistingAutocomplete();
+                    }
+                });
+            } else {
+                removeExistingAutocomplete();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!inputElement.contains(e.target)) {
+                removeExistingAutocomplete();
+            }
+        });
+
+        function removeExistingAutocomplete() {
+            var existingAutocomplete = document.querySelector('.autocomplete-list');
+            if (existingAutocomplete) {
+                existingAutocomplete.remove();
+            }
+        }
+    }
+
+    // Setup autocomplete for the first field
+    availableCities = citiesData.map(function (item) {
+        return {
+            city: item.fields.city,
+            region: item.fields.region,
+            country: item.fields.country,
+        };
+    });
+    autocompleteSetup(availableCities, searchInput_1);
+
+    // Setup autocomplete for the second field
+    autocompleteSetup(availableCities, searchInput_2);
+</script>
 {% endblock %}

@@ -50,25 +50,23 @@ class PassagerInfoForm(forms.Form):
 
 
 class CitySelectionForm(forms.Form):
-    start_point = forms.ModelChoiceField(
-        queryset=City.objects.all(),
+    start_point = forms.CharField(
         label=_("Звідки"),
-        empty_label=_("Виберіть місто"),
-        widget=forms.Select(
+        widget=forms.TextInput(
             attrs={
-                "class": "form-select",
-                "id": "floatingSelect_start_point",
+                "autocomplete": "off",
+                "class": "form-control",
+                "id": "search_data_start_point",
             }
         ),
     )
-    end_point = forms.ModelChoiceField(
-        queryset=City.objects.all(),
+    end_point = forms.CharField(
         label=_("Куди"),
-        empty_label=_("Виберіть місто"),
-        widget=forms.Select(
+        widget=forms.TextInput(
             attrs={
-                "class": "form-select",
-                "id": "floatingSelect_end_point",
+                "autocomplete": "off",
+                "class": "form-control",
+                "id": "search_data_end_point",
             }
         ),
     )

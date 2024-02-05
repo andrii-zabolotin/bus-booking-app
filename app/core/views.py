@@ -1,17 +1,14 @@
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import (
     JsonResponse,
-    Http404,
     HttpResponseNotFound,
 )
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import DeleteView
+from django.core import serializers
 
 from core.forms import *
 from core.models import *
@@ -51,8 +48,24 @@ def home_page(request):
     if request.method == "POST":
         form = CitySelectionForm(request.POST)
         if form.is_valid():
-            start_point = form.cleaned_data["start_point"]
-            end_point = form.cleaned_data["end_point"]
+            start_point_str = form.cleaned_data["start_point"]
+            end_point_str = form.cleaned_data["end_point"]
+
+            start_point_data = {
+                "city": start_point_str.split(",")[0].strip(),
+                "region": start_point_str.split(",")[1].replace("область", "").strip(),
+                "country": start_point_str.split(",")[2].strip(),
+            }
+
+            end_point_data = {
+                "city": end_point_str.split(",")[0].strip(),
+                "region": end_point_str.split(",")[1].replace("область", "").strip(),
+                "country": end_point_str.split(",")[2].strip(),
+            }
+
+            start_point = City.objects.get(**start_point_data)
+            end_point = City.objects.get(**end_point_data)
+
             date = form.cleaned_data["date"]
             passengers_quantity = form.cleaned_data["passengers_quantity"]
             request.session["passengers_quantity"] = passengers_quantity
@@ -65,7 +78,6 @@ def home_page(request):
                     "start_point": start_point,
                     "end_point": end_point,
                     "date": date,
-                    "title": _(f"{start_point.city} - {end_point.city}"),
                 }
             )
             if date == datetime.now().date():
@@ -111,15 +123,17 @@ def home_page(request):
                 initial={
                     "date": date,
                     "passengers_quantity": passengers_quantity,
-                    "start_point": start_point,
-                    "end_point": end_point,
+                    "start_point": str(City.objects.get(pk=start_point)),
+                    "end_point": str(City.objects.get(pk=end_point)),
                 }
             )
         else:
             form = CitySelectionForm()
-
+    cities = City.objects.all()
+    cities_list = serializers.serialize("json", list(cities))
     context.update(
         {
+            "cities": cities_list,
             "form": form,
             "queryset": queryset,
         }

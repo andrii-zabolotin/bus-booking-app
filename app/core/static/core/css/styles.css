@@ -1,25 +1,50 @@
 @media (min-width: 1200px) {
-    .container{
+    .container {
         max-width: 950px;
-         margin: 0 auto;
-  max-height: 100%;
+        margin: 0 auto;
+        max-height: 100%;
     }
 }
 
-body{
+body {
     background-color: #f8f9fa;
 }
 
-.errorlist{
-     list-style-type: none;
+.autocomplete-list {
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + 5px);
+    left: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: calc(100% + 100px);
+    background: #fff;
+    font-size: 85%;
+    color: #333;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.075);
+}
+
+.autocomplete-list li {
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+.autocomplete-list li:hover {
+    background: #f2f2f2;
+}
+
+.errorlist {
+    list-style-type: none;
     padding: 0;
 }
 
-.collapse .nav .nav-link{
+.collapse .nav .nav-link {
     color: #d73446 !important;
 }
 
-.collapse .nav .active{
+.collapse .nav .active {
     color: white !important;
     background-color: #d73446 !important;
 }
@@ -44,9 +69,9 @@ button:focus,
 .btn:active.focus,
 .btn:active:focus,
 .btn:focus {
-outline: 0!important;
-outline-color: transparent!important;
-outline-width: 0!important;
-outline-style: none!important;
-box-shadow: 0 0 0 0 rgba(0,123,255,0)!important;
+    outline: 0 !important;
+    outline-color: transparent !important;
+    outline-width: 0 !important;
+    outline-style: none !important;
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0) !important;
 }
