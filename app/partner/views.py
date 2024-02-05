@@ -71,7 +71,11 @@ def partner_registration(request):
     return render(
         request,
         "partner/registration.html",
-        context={"user_form": user_form, "company_form": company_form},
+        context={
+            "user_form": user_form,
+            "company_form": company_form,
+            "title": _("Реєстрація"),
+        },
     )
 
 
@@ -113,7 +117,7 @@ def partner_subaccount_registration(request):
     return render(
         request,
         "partner/sub_account_registration.html",
-        context={"user_form": user_form},
+        context={"user_form": user_form, "title": _("Реєстрація")},
     )
 
 
@@ -179,6 +183,7 @@ class BusView(PartnerRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "bus"
         context["licence_plate_value"] = self.request.GET.get("licence_plate", "")
+        context["title"] = _("Автобуси")
 
         bus_list = context["bus_list"]
         self.add_trip_counts_to_bus(bus_list)
@@ -338,6 +343,7 @@ class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "bus"
+        context["title"] = _("Створити автобус")
         return context
 
 
@@ -444,6 +450,7 @@ class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "trips"
+        context["title"] = _("Створити подорож")
         return context
 
 
@@ -494,6 +501,7 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "sub_accounts"
+        context["title"] = _("Субаккаунти")
         return context
 
 
@@ -501,6 +509,12 @@ class StationCreateView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     form_class = StationCreateFrom
     template_name = "station_create.html"
     success_url = "/partner/station/list/"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Створити станцію")
+
+        return context
 
 
 class StationListView(PartnerRequiredMixin, ListView):

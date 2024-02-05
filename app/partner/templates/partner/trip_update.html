@@ -51,11 +51,12 @@
     <div class="row">
         <div class="col d-flex justify-content-end">
             <button type="submit" class="btn btn-danger text-light ">Оновити дані</button>
-            <a href="{% url 'partner:future_trips'%}"><button type="button" class="btn btn-danger text-light ms-4">Відміна редагування</button></a>
+            <a href="{% url 'partner:trips'%}?type=future"><button type="button" class="btn btn-danger text-light ms-4">Відміна редагування</button></a>
         </div>
     </div>
 </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'core/js/create_trip_form.js' %}"></script>
     {{form.media}}
 {% endblock %}
 

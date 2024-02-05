@@ -212,7 +212,9 @@ def checkout(request, trip_pk):
         context={
             "buyer_form": buyer_form,
             "passenger_forms": passenger_forms,
-            "title": _("Сплата"),
+            "title": _(
+                f"Сплата квитка {trip.start_point.city} - {trip.end_point.city}"
+            ),
             "trip": trip,
             "price": price,
         },
@@ -223,11 +225,15 @@ def pageForbidden(request, exception):
     """
     View for handling forbidden (403) requests.
     """
-    return render(request, "403.html", status=403)
+    return render(
+        request, "403.html", status=403, context={"title": "Доступ заблоковано"}
+    )
 
 
 def pageNotFound(request, exception):
     """
     View for handling not found (404) requests.
     """
-    return render(request, "404.html", status=404)
+    return render(
+        request, "404.html", status=404, context={"title": "Сторінка не знайдена"}
+    )
