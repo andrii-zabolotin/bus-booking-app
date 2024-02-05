@@ -29,8 +29,19 @@ from user.forms import RegisterClientForm
 def partner_registration(request):
     """
     View for handling partner registration.
-    Handles the registration process for partners, including creating a new user,
+
+    This view processes the registration of a partner, which includes creating a new user,
     associating them with a company, and logging them in.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    Raises:
+        Exception: An error occurred during registration.
+
     """
     if request.method == "POST":
         user_form = RegisterClientForm(request.POST)
@@ -83,8 +94,19 @@ def partner_registration(request):
 def partner_subaccount_registration(request):
     """
     View for handling partner sub-account registration.
-    Handles the registration process for partners, including creating a new user,
-    associating them with a company, and logging them in.
+
+    This view processes the registration of a partner sub-account, creating a new user
+    associated with the same company as the logged-in partner.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    Raises:
+        Exception: An error occurred during registration.
+
     """
     if request.method == "POST":
         user_form = RegisterClientForm(request.POST)
@@ -124,13 +146,31 @@ def partner_subaccount_registration(request):
 class PartnerProfileView(PartnerRequiredMixin, View):
     """
     View for displaying the partner's profile information.
+
     This view requires the user to be logged in as a partner. It retrieves the associated
     company based on the logged-in user and renders the partner's profile page.
+
+    Attributes:
+        template_name (str): The template name for rendering the profile page.
+
+    Methods:
+        get(self, request): Handles GET requests to display the partner's profile page.
+
     """
 
     template_name = "partner/profile.html"
 
     def get(self, request):
+        """
+        Handles GET requests to display the partner's profile page.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            HttpResponse: The HTTP response object containing the partner's profile page.
+
+        """
         company = Company.objects.get(partner__user=request.user)
         return render(
             request,
@@ -146,22 +186,30 @@ class PartnerProfileView(PartnerRequiredMixin, View):
 class BusView(PartnerRequiredMixin, ListView):
     """
     View for displaying a list of buses along with additional statistics.
+
     This view requires the user to be logged in as a partner and provides information about each bus,
     including revenue, ticket prices, and trip counts.
+
+    Attributes:
+        model (Model): The model associated with this view.
+        template_name (str): The template name for rendering the bus list page.
+        context_object_name (str): The context variable name for the list of buses.
 
     Methods:
         get_queryset(self): Retrieve the queryset of buses associated with the logged-in partner.
         get_context_data(self, **kwargs): Add additional context data to be used in the template.
-
         get_revenue_dict(self, bus_list): Calculate revenue for each bus in the provided list.
         add_revenue_to_bus(self, bus_list): Add revenue information to each bus in the list.
-
         get_ticket_price_dict(self, bus_list): Calculate ticket price statistics for each bus.
         add_ticket_price_to_bus(self, bus_list): Add ticket price information to each bus in the list.
-
         get_past_trip_count_dict(self, bus_list): Calculate past trip counts for each bus.
         get_future_trip_count_dict(self, bus_list): Calculate future trip counts for each bus.
         add_trip_counts_to_bus(self, bus_list): Add trip count information to each bus in the list.
+        get_future_trip_dict(self, bus_list): Retrieve future trips for each bus in the provided list.
+        add_future_trip_to_bus(self, bus_list): Add future trip information to each bus in the list.
+        get_past_trip_dict(self, bus_list): Retrieve past trips for each bus in the provided list.
+        add_past_trip_to_bus(self, bus_list): Add past trip information to each bus in the list.
+
     """
 
     model = Bus
@@ -169,6 +217,13 @@ class BusView(PartnerRequiredMixin, ListView):
     context_object_name = "bus_list"
 
     def get_queryset(self):
+        """
+        Retrieve the queryset of buses associated with the logged-in partner.
+
+        Returns:
+            QuerySet: The queryset of buses associated with the logged-in partner.
+
+        """
         licence_plate = self.request.GET.get("licence_plate", "")
 
         if licence_plate:
@@ -180,6 +235,12 @@ class BusView(PartnerRequiredMixin, ListView):
         )
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to be used in the template.
+
+        Returns:
+            dict: Additional context data.
+        """
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "bus"
         context["licence_plate_value"] = self.request.GET.get("licence_plate", "")
@@ -327,7 +388,19 @@ class BusView(PartnerRequiredMixin, ListView):
 
 class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     """
-    View for creating a new bus.R
+    View for creating a new bus.
+
+    This view allows partners to create a new bus associated with their company.
+
+    Attributes:
+        form_class (Form): The form class used for creating a new bus.
+        template_name (str): The template name for rendering the bus creation page.
+        success_url (str): The URL to redirect to after successful bus creation.
+
+    Methods:
+        form_valid(self, form): Process the form submission when it is valid.
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
     """
 
     form_class = CreateBusForm
@@ -335,12 +408,29 @@ class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     success_url = "/partner/bus/list/"
 
     def form_valid(self, form):
+        """
+        Process the form submission when it is valid.
+
+        Args:
+            form (Form): The form instance containing the submitted data.
+
+        Returns:
+            HttpResponse: The HTTP response object after successful form submission.
+
+        """
         obj = form.save(commit=False)
         obj.company = Company.objects.get(partner__user=self.request.user)
         obj.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to be used in the template.
+
+        Returns:
+            dict: Additional context data.
+
+        """
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "bus"
         context["title"] = _("Створити автобус")
@@ -348,12 +438,37 @@ class CreateBusView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
 
 
 class TripView(PartnerRequiredMixin, ListView):
+    """
+    View for displaying a list of trips along with additional filtering options.
+
+    This view requires the user to be logged in as a partner and provides information about each trip,
+    including details like start point, end point, date, and allows filtering based on various criteria.
+
+    Attributes:
+        model (Model): The model associated with this view.
+        context_object_name (str): The context variable name for the list of trips.
+        paginate_by (int): The number of trips to display per page.
+        template_name (str): The template name for rendering the trips list page.
+
+    Methods:
+        get_queryset(self): Retrieve the queryset of trips based on filter criteria.
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
+    """
+
     model = Trip
     context_object_name = "trips_list"
     paginate_by = 5
     template_name = "partner/trips_list.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to be used in the template.
+
+        Returns:
+            dict: Additional context data.
+
+        """
         context = super().get_context_data(**kwargs)
         query_params = self.request.GET
         form_params = {
@@ -392,6 +507,13 @@ class TripView(PartnerRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """
+        Retrieve the queryset of trips based on filter criteria.
+
+        Returns:
+            QuerySet: The queryset of trips based on filter criteria.
+
+        """
         type = self.request.GET.get("type", None)
         sort_type = self.request.GET.get("sort_type", None)
         id = self.request.GET.get("id", None)
@@ -436,6 +558,18 @@ class TripView(PartnerRequiredMixin, ListView):
 class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     """
     View for creating a new trip.
+
+    This view allows partners to create a new trip associated with their company.
+
+    Attributes:
+        form_class (Form): The form class used for creating a new trip.
+        template_name (str): The template name for rendering the trip creation page.
+        success_url (str): The URL to redirect to after successful trip creation.
+
+    Methods:
+        get_form_kwargs(self): Get the keyword arguments to instantiate the form.
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
     """
 
     form_class = CreateUpdateTripForm
@@ -443,11 +577,21 @@ class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
     success_url = "/partner/trips?type=future"
 
     def get_form_kwargs(self):
+        """
+        Pass arguments to the form's constructor
+        """
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to be used in the template.
+
+        Returns:
+            dict: Additional context data.
+
+        """
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "trips"
         context["title"] = _("Створити подорож")
@@ -457,6 +601,21 @@ class CreateTripView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
 class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     View for updating a trip.
+
+    This view allows partners to update details of an existing trip associated with their company,
+    given that the trip has not started yet and no tickets have been sold.
+
+    Attributes:
+        model (Model): The model associated with this view.
+        template_name (str): The template name for rendering the trip update page.
+        form_class (Form): The form class used for updating the trip.
+        success_url (str): The URL to redirect to after successful trip update.
+        pk_url_kwarg (str): The URL keyword argument for the trip primary key.
+
+    Methods:
+        test_func(self): Test if the user has permission to update the trip.
+        get_form_kwargs(self): Get the keyword arguments to instantiate the form.
+
     """
 
     model = Trip
@@ -466,6 +625,13 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
     pk_url_kwarg = "trip_pk"
 
     def test_func(self):
+        """
+        Test if the user has permission to update the trip.
+
+        Returns:
+            bool: True if the user has permission, False otherwise.
+
+        """
         trip = self.get_object()
         return (
             Company.objects.get(partner__user=self.request.user) == trip.bus.company
@@ -483,22 +649,63 @@ class UpdateTripView(PartnerRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class SubAccountsView(PartnerRequiredMixin, ListView):
+    """
+    View for displaying a list of sub-accounts associated with the partner's company.
+
+    This view requires the user to be logged in as a partner and provides a list of sub-accounts
+    (users associated with the partner's company marked as sub-accounts).
+
+    Attributes:
+        model (Model): The model associated with this view.
+        template_name (str): The template name for rendering the sub-accounts list page.
+        context_object_name (str): The context variable name for the list of sub-accounts.
+
+    Methods:
+        dispatch(self, request, *args, **kwargs): Override the dispatch method to check authentication.
+        get_queryset(self): Retrieve the queryset of sub-accounts associated with the logged-in partner.
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
+    """
+
     model = Partner
     template_name = "partner/sub_accounts.html"
     context_object_name = "sub_accounts"
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Override the dispatch method to check authentication.
+
+        If the logged-in user is a sub-account, raise PermissionDenied.
+
+        Returns:
+            HttpResponse: The HTTP response object.
+
+        """
         if request.user.is_authenticated and request.user.is_sub_account:
             raise PermissionDenied()
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        """
+        Retrieve the queryset of sub-accounts associated with the logged-in partner.
+
+        Returns:
+            QuerySet: The queryset of sub-accounts associated with the logged-in partner.
+
+        """
         return Partner.objects.filter(
             company=Company.objects.get(partner__user=self.request.user),
             user__is_sub_account=True,
         )
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to be used in the template.
+
+        Returns:
+            dict: Additional context data.
+
+        """
         context = super().get_context_data(**kwargs)
         context["active_tab"] = "sub_accounts"
         context["title"] = _("Субаккаунти")
@@ -506,6 +713,21 @@ class SubAccountsView(PartnerRequiredMixin, ListView):
 
 
 class StationCreateView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
+    """
+    View for creating a new station.
+
+    This view allows partners to create a new station associated with their company.
+
+    Attributes:
+        form_class (Form): The form class used for creating a new station.
+        template_name (str): The template name for rendering the station creation page.
+        success_url (str): The URL to redirect to after successful station creation.
+
+    Methods:
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+
+    """
+
     form_class = StationCreateFrom
     template_name = "station_create.html"
     success_url = "/partner/station/list/"
@@ -518,6 +740,24 @@ class StationCreateView(PartnerRequiredMixin, FormInvalidMixin, CreateView):
 
 
 class StationListView(PartnerRequiredMixin, ListView):
+    """
+    View for displaying a list of stations with filtering options.
+
+    This view requires the user to be logged in as a partner and provides a list of stations
+    associated with the partner's company, along with filtering options.
+
+    Attributes:
+        model (Model): The model associated with this view.
+        template_name (str): The template name for rendering the station list page.
+        context_object_name (str): The context variable name for the list of stations.
+        paginate_by (int): The number of stations to display per page.
+
+    Methods:
+        get_context_data(self, **kwargs): Add additional context data to be used in the template.
+        get_queryset(self): Retrieve the queryset of stations based on filter criteria.
+
+    """
+
     model = Station
     template_name = "station_list.html"
     context_object_name = "stations"
@@ -541,6 +781,13 @@ class StationListView(PartnerRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """
+        Retrieve the queryset of stations based on filter criteria.
+
+        Returns:
+            QuerySet: The queryset of stations based on filter criteria.
+
+        """
         station = self.request.GET.get("station", None)
         street_type = self.request.GET.get("street_type", None)
         street = self.request.GET.get("street", None)

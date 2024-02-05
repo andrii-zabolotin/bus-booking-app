@@ -16,6 +16,19 @@ from user.forms import *
 
 
 class RegisterUser(FormInvalidMixin, CreateView):
+    """
+    View for user registration.
+
+    Attributes:
+        form_class (class): Form used for user registration.
+        template_name (str): HTML template for rendering the registration form.
+
+    Methods:
+        form_valid(self, form): Handles the valid form submission, creates a new user,
+                               logs in the user, and redirects to the home page.
+        get_context_data(self, **kwargs): Adds additional context data for rendering the form.
+    """
+
     form_class = RegisterClientForm
     template_name = "user/register.html"
 
@@ -31,6 +44,18 @@ class RegisterUser(FormInvalidMixin, CreateView):
 
 
 class LoginUser(FormInvalidMixin, LoginView):
+    """
+    View for user login.
+
+    Attributes:
+        form_class (class): Form used for user login.
+        template_name (str): HTML template for rendering the login form.
+
+    Methods:
+        get_success_url(self): Retrieves the URL to redirect after successful login.
+        get_context_data(self, **kwargs): Adds additional context data for rendering the form.
+    """
+
     form_class = CustomAuthenticationForm
     template_name = "user/login.html"
 
@@ -49,11 +74,30 @@ class LoginUser(FormInvalidMixin, LoginView):
 
 
 def logout_user(request):
+    """
+    View for user logout.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Redirects to the home page after logout.
+    """
     logout(request)
     return redirect("core:home")
 
 
 def not_partner_required(view_func):
+    """
+    Decorator function to check that the user is not a partner before accessing a view.
+
+    Args:
+        view_func (function): The original view function.
+
+    Returns:
+        function: Wrapped view function with the additional check for non-partner status.
+    """
+
     def wrapped_view(request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_partner:
             raise PermissionDenied
@@ -65,6 +109,16 @@ def not_partner_required(view_func):
 @login_required(login_url="/user/login")
 @not_partner_required
 def user_returned_tickets(request):
+    """
+    View for displaying returned tickets for the logged-in user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Rendered page with returned tickets information.
+    """
+
     tickets = Ticket.objects.filter(user=request.user, returned=True)
 
     return render(
@@ -81,6 +135,16 @@ def user_returned_tickets(request):
 @login_required(login_url="/user/login")
 @not_partner_required
 def user_profile(request):
+    """
+    View for displaying the user's future trips and associated tickets.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Rendered page with future trips and associated tickets information.
+    """
+
     future_user_trips = (
         Ticket.objects.filter(
             user=request.user,
@@ -112,6 +176,16 @@ def user_profile(request):
 @login_required(login_url="/user/login")
 @not_partner_required
 def user_contact(request):
+    """
+    View for handling user contact information.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Rendered page for updating user contact information.
+    """
+
     if request.method == "POST":
         form = AddEmailToUser(request.POST, instance=request.user)
         if form.is_valid():
@@ -136,6 +210,16 @@ def user_contact(request):
 @login_required(login_url="/user/login")
 @not_partner_required
 def user_history(request):
+    """
+    View for displaying the user's past trips and associated tickets.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Rendered page with past trips and associated tickets information.
+    """
+
     trips_with_tickets = []
     sort_type = request.GET.get("sort_type", None)
     if sort_type:
@@ -184,6 +268,17 @@ def user_history(request):
 @login_required(login_url="/user/login")
 @not_partner_required
 def ticket_return(request, ticket_pk):
+    """
+    View for handling the return of a user's ticket.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        ticket_pk (int): The primary key of the ticket to be returned.
+
+    Returns:
+        HttpResponse: Rendered page for ticket return confirmation or denial.
+    """
+
     ticket = get_object_or_404(Ticket, pk=ticket_pk)
     if ticket.trip.timedate_departure < timezone.now():
         raise PermissionDenied()

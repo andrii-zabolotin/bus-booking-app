@@ -25,6 +25,7 @@ class AjaxGetStationsView(View):
         """
         Handle GET requests and return a JSON response with a list of stations.
         """
+
         city_id = request.GET.get("city_id")
         stations = Station.objects.filter(city_id=city_id)
         station_list = [
@@ -41,7 +42,11 @@ def home_page(request):
     """
     View for the home page.
     Handles the logic for displaying and processing the city selection form to find available trips.
+
+    Returns:
+        HttpResponse: Rendered home page with the city selection form and available trips.
     """
+
     queryset = None
     context = {"title": "BusEnjoyer"}
 
@@ -145,9 +150,17 @@ def home_page(request):
 def checkout(request, trip_pk):
     """
     View for handling the checkout process.
-    Handles the logic for processing ticket purchases, including user authentication if user is unauthenticated,
+    Handles the logic for processing ticket purchases, including user authentication,
     form validation, and creating Ticket objects.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        trip_pk (int): The primary key of the selected trip.
+
+    Returns:
+        HttpResponse: Redirects to the user's future trips page after successful purchase.
     """
+
     trip = Trip.objects.get(pk=trip_pk)
     passengers_quantity = request.session.get("passengers_quantity", 1)
     available_seats = (
@@ -224,7 +237,15 @@ def checkout(request, trip_pk):
 def pageForbidden(request, exception):
     """
     View for handling forbidden (403) requests.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        exception: The exception object.
+
+    Returns:
+        HttpResponse: Rendered 403 page.
     """
+
     return render(
         request, "403.html", status=403, context={"title": "Доступ заблоковано"}
     )
@@ -233,7 +254,15 @@ def pageForbidden(request, exception):
 def pageNotFound(request, exception):
     """
     View for handling not found (404) requests.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        exception: The exception object.
+
+    Returns:
+        HttpResponse: Rendered 404 page.
     """
+
     return render(
         request, "404.html", status=404, context={"title": "Сторінка не знайдена"}
     )
