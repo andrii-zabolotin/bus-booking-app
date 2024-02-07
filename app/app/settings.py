@@ -39,20 +39,19 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "user.apps.UserConfig",
     "core.apps.CoreConfig",
+    "api.apps.ApiConfig",
     "partner.apps.PartnerConfig",
     "phonenumber_field",
     "bootstrap5",
     "bootstrap_datepicker_plus",
     "django_select2",
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
