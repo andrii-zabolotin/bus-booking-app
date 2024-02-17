@@ -6,7 +6,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from slugify import slugify
 
-from core.models import Partner, Company
+from core.models import Company, Partner, Bus, Station, Trip
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -111,3 +111,64 @@ class PartnerSerializer(serializers.Serializer):
         # Creating a partner.
         partner = Partner.objects.create(user=user, company=company)
         return partner
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        company_data = validated_data.pop("company", {})
+        user_data = validated_data.pop("user", {})
+
+        # Assuming you have a related name 'partner' in your User model
+        user_instance = instance.user
+        user_serializer = UserSerializer(
+            instance=user_instance, data=user_data, partial=True
+        )
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+        else:
+            raise serializers.ValidationError(user_serializer.errors)
+
+        company_instance = instance.company
+        company_serializer = CompanySerializer(
+            instance=company_instance, data=company_data, partial=True
+        )
+        if company_serializer.is_valid():
+            company = company_serializer.save()
+        else:
+            transaction.set_rollback(True)
+            raise serializers.ValidationError(company_serializer.errors)
+
+        instance.user = user
+        instance.company = company
+        instance.save()
+        return instance
+
+
+# class TripSearchSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Trip
+#         fields = "__all__"
+
+
+class BusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bus
+        fields = ("id", "licence_plate", "number_of_seats", "brand")
+
+    def create(self, validated_data):
+        bus = Bus.objects.create(
+            **validated_data,
+            company=Company.objects.get(partner__user=self.context["request"].user)
+        )
+        return bus
+
+
+class StationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Station
+        fields = "__all__"
+
+
+class TripSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        fields = "__all__"
