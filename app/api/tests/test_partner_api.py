@@ -20,6 +20,7 @@ CREATE_BUS_URL = reverse("api:bus-list")
 LIST_BUS_URL = reverse("api:bus-list")
 STATION_URL = reverse("api:station")
 TRIP_URL = reverse("api:trip-list")
+CITY_URL = reverse("api:city")
 
 
 @transaction.atomic
@@ -138,6 +139,12 @@ class PublicPartnerApiTests(TestCase):
         self.assertTrue(
             get_user_model().objects.get(phone=payload["user"]["phone"]).is_partner
         )
+
+    def test_retrieve_city_list(self):
+        """Test retrieving cities is successful."""
+        res = self.client.get(CITY_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class PrivateUserApiTests(TestCase):
@@ -376,3 +383,7 @@ class PrivateUserApiTests(TestCase):
         self.trip.refresh_from_db()
         self.assertEqual(res_upd.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res_del.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_tickets_list(self):
+        """Test retrieving is successful."""
+        pass

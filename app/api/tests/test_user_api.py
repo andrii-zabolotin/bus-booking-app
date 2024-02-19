@@ -14,6 +14,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 CREATE_USER_URL = reverse("api:user-create")
 TOKEN_URL = reverse("api:token")
 ME_URL = reverse("api:user-me")
+TRIP_URL = reverse("api:user-trip")
 
 
 def create_user(**params):
@@ -165,6 +166,45 @@ class PublicUserApiTests(TestCase):
         res = self.client.get(ME_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_trip_queryparam_date_validation_error(self):
+        """Test validation error of query param date is returned."""
+        dates = ["05-01-2021", "2024", "2024-18-01"]
+        for date in dates:
+            res = self.client.get(TRIP_URL, {"date": date})
+            self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_date_required_for_trip_retrieve(self):
+        """Test that date is required error returned."""
+        res = self.client.get(TRIP_URL, {"end_city_id": "1", "start_city_id": "2"})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_city_required_for_trip_retrieve(self):
+        """Test that cities is required error returned."""
+        cities = [
+            {"end_city_id": "1", "date": "2024-02-15"},
+            {"start_city_id": "2", "date": "2024-02-15"},
+        ]
+        for city in cities:
+            res = self.client.get(TRIP_URL, city)
+            self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_trip_queryparam_city_id_validation_error(self):
+        """Test validation error of query param city id is returned."""
+        query_params = [{"end_city_id": "asf"}, {"start_city_id": "boba"}]
+        for param in query_params:
+            res = self.client.get(TRIP_URL, param)
+            self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_trip_success(self):
+        """Test retrieve trip is success."""
+        query_params = [
+            {"end_city_id": "1", "start_city_id": "2", "date": "2024-02-18"},
+            {"end_city_id": "1", "start_city_id": "2", "date": "2024-02-18"},
+        ]
+        for param in query_params:
+            res = self.client.get(TRIP_URL, param)
+            self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class PrivateUserApiTests(TestCase):

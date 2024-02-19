@@ -1,12 +1,15 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model, authenticate
 from django.core.checks import messages
 from django.db import transaction
 from django.utils.translation import gettext as _
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
+from rest_framework.response import Response
 from slugify import slugify
 
-from core.models import Company, Partner, Bus, Station, Trip
+from core.models import Company, Partner, Bus, Station, Trip, City
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -171,4 +174,10 @@ class StationSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
+        fields = "__all__"
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
         fields = "__all__"
