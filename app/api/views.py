@@ -1,14 +1,15 @@
 from datetime import datetime
 
 from django.db import IntegrityError
-from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 
-from rest_framework import generics, authentication, permissions, viewsets
+from rest_framework import generics, authentication, permissions, viewsets, mixins
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.viewsets import GenericViewSet
 
 from core.models import *
 from .permissions import IsPartner
@@ -112,6 +113,41 @@ class TripUserView(generics.ListAPIView):
             start_point=self.start_point,
             timedate_departure__date=self.date,
         )
+
+
+class ListCreateTicketUserView(generics.ListCreateAPIView):
+    """List / Create user tickets."""
+
+    serializer_class = TicketSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        trip = Trip.objects.get(pk=request.data["trip"])
+        occupied_seats = Ticket.objects.filter(trip=trip.pk, returned=False)
+        available_seats = trip.bus.number_of_seats - len(occupied_seats)
+        if trip.timedate_departure < timezone.now():
+            return Response({"error": "This is a past trip."}, status=400)
+        elif available_seats <= 0:
+            return Response(
+                {"error": "There is no available seats in this trip."}, status=400
+            )
+        else:
+            return super().create(request, *args, **kwargs)
+
+
+class RetrieveUpdateTicketUserView(generics.RetrieveUpdateAPIView):
+    """Manage user tickets."""
+
+    serializer_class = ManageTicketSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user=self.request.user)
 
 
 class CreateTokenView(ObtainAuthToken):

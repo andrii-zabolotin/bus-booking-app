@@ -5,16 +5,20 @@ from django.test import TestCase
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
 from rest_framework.test import APIClient
 
 from phonenumber_field.phonenumber import PhoneNumber
 
+from core.models import *
+
 CREATE_USER_URL = reverse("api:user-create")
 TOKEN_URL = reverse("api:token")
 ME_URL = reverse("api:user-me")
 TRIP_URL = reverse("api:user-trip")
+TICKET_URL = reverse("api:ticket-list")
 
 
 def create_user(**params):
@@ -31,7 +35,7 @@ class PublicUserApiTests(TestCase):
     def test_create_user_success(self):
         """Test creating a user is successful."""
         payload = {
-            "phone": PhoneNumber.from_string("+380669057079"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "email": "test@gmail.com",
             "password": "testpass123",
         }
@@ -50,7 +54,7 @@ class PublicUserApiTests(TestCase):
     def test_user_with_phone_exists_error(self):
         """Test error returned if user with email exists."""
         payload = {
-            "phone": PhoneNumber.from_string("+380669057079"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "email": "test@gmail.com",
             "password": "testpass123",
         }
@@ -66,7 +70,7 @@ class PublicUserApiTests(TestCase):
     def test_user_phone_is_short(self):
         """Test error returned if user phone is short."""
         payload = {
-            "phone": PhoneNumber.from_string("+38066905707"),
+            "phone": PhoneNumber.from_string("+38066905777"),
             "email": "test@gmail.com",
             "password": "testpass123",
         }
@@ -79,7 +83,7 @@ class PublicUserApiTests(TestCase):
     def test_user_phone_country_code_invalid(self):
         """Test error returned if user phone country code is invalid."""
         payload = {
-            "phone": PhoneNumber.from_string("+5669057079"),
+            "phone": PhoneNumber.from_string("+5669057777"),
             "email": "test@gmail.com",
             "password": "testpass123",
         }
@@ -92,7 +96,7 @@ class PublicUserApiTests(TestCase):
     def test_password_too_short_error(self):
         """Test an error is returned if password less than 5 chars."""
         payload = {
-            "phone": PhoneNumber.from_string("+380669057079"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "email": "test@gmail.com",
             "password": "pw",
         }
@@ -109,7 +113,7 @@ class PublicUserApiTests(TestCase):
     def test_create_token_for_user(self):
         """Test generates token for valid credentials."""
         user_details = {
-            "phone": PhoneNumber.from_string("+380669057099"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "email": "test5@example.com",
             "password": "test-user-password123",
         }
@@ -128,13 +132,13 @@ class PublicUserApiTests(TestCase):
     def test_create_token_bad_credentials(self):
         """Test returns error if credentials invalid."""
         create_user(
-            phone=PhoneNumber.from_string("+380669057079"),
+            phone=PhoneNumber.from_string("+380669057777"),
             email="test@example.com",
             password="goodpass",
         )
 
         payload = {
-            "phone": PhoneNumber.from_string("+380669057079"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "password": "badpass",
         }
         res = self.client.post(TOKEN_URL, payload)
@@ -145,7 +149,7 @@ class PublicUserApiTests(TestCase):
     def test_create_token_phone_not_found(self):
         """Test error returned if user not found for given phone."""
         payload = {
-            "phone": PhoneNumber.from_string("+380669057079"),
+            "phone": PhoneNumber.from_string("+380669057777"),
             "password": "pass123",
         }
         res = self.client.post(TOKEN_URL, payload)
@@ -155,7 +159,7 @@ class PublicUserApiTests(TestCase):
 
     def test_create_token_blank_password(self):
         """Test posting a blank password returns an error."""
-        payload = {"phone": PhoneNumber.from_string("+380669057079"), "password": ""}
+        payload = {"phone": PhoneNumber.from_string("+380669057777"), "password": ""}
         res = self.client.post(TOKEN_URL, payload)
 
         self.assertNotIn("token", res.data)
@@ -212,12 +216,56 @@ class PrivateUserApiTests(TestCase):
 
     def setUp(self):
         self.user = create_user(
-            phone=PhoneNumber.from_string("+380669057079"),
+            phone=PhoneNumber.from_string("+380669057777"),
             email="test@example.com",
             password="testpass123",
         )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
+
+        user = create_user(
+            phone=PhoneNumber.from_string("+380559057777"),
+            email="test2@example.com",
+            password="testpass123",
+            is_partner=True,
+        )
+        company = Company.objects.create(company_name="Ajilik")
+        partner = Partner.objects.create(user=user, company=company)
+
+        self.bus = Bus.objects.create(
+            licence_plate="test", number_of_seats=1, brand="asldf", company=company
+        )
+        self.start_city = City.objects.create(
+            city="Київ", region="Київська", country="Україна"
+        )
+        self.end_city = City.objects.create(
+            city="Прилуки", region="Київська", country="Україна"
+        )
+        self.departure_station = Station.objects.create(
+            station="Гулька",
+            street_type="Вулиця",
+            street="Котляра",
+            number=12,
+            city=self.start_city,
+        )
+        self.arrival_station = Station.objects.create(
+            station="Школа",
+            street_type="Вулиця",
+            street="Шевченка",
+            number=12 - 13,
+            city=self.end_city,
+        )
+        payload = {
+            "timedate_departure": f"{timezone.now().date()} 23:59:59",
+            "timedate_arrival": f"{timezone.now().date()} 23:59:59",
+            "price": 200,
+            "bus": self.bus,
+            "departure_station": self.departure_station,
+            "arrival_station": self.arrival_station,
+            "start_point": self.start_city,
+            "end_point": self.end_city,
+        }
+        self.trip = Trip.objects.create(**payload)
 
     def test_retrieve_profile_success(self):
         """Test retrieving profile for logged in user."""
@@ -248,3 +296,41 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(self.user.email, payload["email"])
         self.assertTrue(self.user.check_password(payload["password"]))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_tickets_success(self):
+        """Test retrieving tickets list is successful."""
+        res = self.client.get(TICKET_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_ticket_create_success(self):
+        """Test creating a new ticket is successful."""
+        res = self.client.post(
+            TICKET_URL,
+            {
+                "first_name": "Grande",
+                "last_name": "Polish",
+                "returned": False,
+                "trip": self.trip.pk,
+            },
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_ticket_update_success(self):
+        """Test updating an existing ticket is successful."""
+        payload = {
+            "first_name": "Grande",
+            "last_name": "Polish",
+            "returned": False,
+            "user": self.user,
+            "trip": self.trip,
+        }
+        ticket = Ticket.objects.create(**payload)
+        res = self.client.patch(
+            reverse("api:ticket-detail", kwargs={"pk": ticket.pk}),
+            data={"first_name": "updated"},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["first_name"], "updated")

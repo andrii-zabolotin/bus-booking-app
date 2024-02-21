@@ -25,4 +25,10 @@ urlpatterns = [
         name="partner-station",
     ),
     path("api/v1/user/trip/", TripUserView.as_view(), name="user-trip"),
+    path("api/v1/user/ticket/", ListCreateTicketUserView.as_view(), name="ticket-list"),
+    path(
+        "api/v1/user/ticket/<int:pk>/",
+        RetrieveUpdateTicketUserView.as_view(),
+        name="ticket-detail",
+    ),
 ]

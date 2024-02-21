@@ -1,15 +1,12 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.contrib.auth import get_user_model, authenticate
-from django.core.checks import messages
 from django.db import transaction
 from django.utils.translation import gettext as _
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
-from rest_framework.response import Response
 from slugify import slugify
 
-from core.models import Company, Partner, Bus, Station, Trip, City
+from core.models import Company, Partner, Bus, Station, Trip, City, Ticket
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -146,12 +143,6 @@ class PartnerSerializer(serializers.Serializer):
         return instance
 
 
-# class TripSearchSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Trip
-#         fields = "__all__"
-
-
 class BusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bus
@@ -181,3 +172,20 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = "__all__"
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Ticket
+        fields = "__all__"
+
+
+class ManageTicketSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Ticket
+        fields = "__all__"
+        read_only_fields = ("trip",)
