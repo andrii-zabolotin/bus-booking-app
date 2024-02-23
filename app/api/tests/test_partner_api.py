@@ -18,7 +18,7 @@ TOKEN_URL = reverse("api:token")
 PARTNER_ME_URL = reverse("api:partner-me")
 CREATE_BUS_URL = reverse("api:bus-list")
 LIST_BUS_URL = reverse("api:bus-list")
-STATION_URL = reverse("api:station")
+STATION_URL = reverse("api:partner-station")
 TRIP_URL = reverse("api:trip-list")
 CITY_URL = reverse("api:city")
 

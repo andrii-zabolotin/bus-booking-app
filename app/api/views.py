@@ -73,6 +73,10 @@ class TripUserView(generics.ListAPIView):
                     {"error": "Incorrect data format, should be YYYY-MM-DD."},
                     status=400,
                 )
+            if datetime.strptime(self.date, "%Y-%m-%d").date() < datetime.now().date():
+                return Response(
+                    {"error": "Date shouldn't be less than today."}, status=400
+                )
         else:
             return Response(
                 {"error": "Date is required."},
@@ -108,13 +112,43 @@ class TripUserView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Trip.objects.filter(
+        queryset = Trip.objects.filter(
             end_point=self.end_point,
             start_point=self.start_point,
             timedate_departure__date=self.date,
         )
 
+        for trip in queryset:
+            sold_tickets_count = Ticket.objects.filter(
+                trip=trip, returned=False
+            ).count()
+            remaining_seats = trip.bus.number_of_seats - sold_tickets_count
+            trip.remaining_seats = remaining_seats
+        queryset = [trip for trip in queryset if trip.remaining_seats >= 1]
+        return queryset
 
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "type",
+                OpenApiTypes.STR,
+                description="Type of retrieving trips [future/past]",
+            ),
+            OpenApiParameter(
+                "sort_type",
+                OpenApiTypes.STR,
+                description="Type of sorting [ask/desk]",
+            ),
+            OpenApiParameter(
+                "returned",
+                OpenApiTypes.STR,
+                description="Returned tickets [true/false]",
+            ),
+        ]
+    )
+)
 class ListCreateTicketUserView(generics.ListCreateAPIView):
     """List / Create user tickets."""
 
@@ -123,7 +157,30 @@ class ListCreateTicketUserView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user)
+        type = self.request.GET.get("type", None)
+        sort_type = self.request.GET.get("sort_type", None)
+        returned = self.request.GET.get("returned", None)
+        params = {}
+        if type == "future":
+            params["trip__timedate_departure__gt"] = datetime.now()
+        elif type == "past":
+            params["trip__timedate_departure__lt"] = datetime.now()
+
+        if returned == "true":
+            params["returned"] = True
+        elif returned == "false":
+            params["returned"] = False
+
+        if sort_type:
+            if sort_type == "ask":
+                sort = "trip__timedate_departure"
+            else:
+                sort = "-trip__timedate_departure"
+            return Ticket.objects.filter(user=self.request.user, **params).order_by(
+                sort
+            )
+        else:
+            return Ticket.objects.filter(user=self.request.user, **params)
 
     def create(self, request, *args, **kwargs):
         trip = Trip.objects.get(pk=request.data["trip"])

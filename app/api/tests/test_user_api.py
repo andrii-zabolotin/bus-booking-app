@@ -1,6 +1,8 @@
 """
 Tests for the user API.
 """
+from datetime import datetime
+
 from django.test import TestCase
 
 from django.contrib.auth import get_user_model
@@ -31,6 +33,56 @@ class PublicUserApiTests(TestCase):
     def setUp(self):
         """Creates an API client that can be utilized for testing purposes."""
         self.client = APIClient()
+
+        self.user = create_user(
+            phone=PhoneNumber.from_string("+380559057777"),
+            email="test2@example.com",
+            password="testpass123",
+            is_partner=True,
+        )
+        company = Company.objects.create(company_name="Ajilik")
+        partner = Partner.objects.create(user=self.user, company=company)
+
+        self.bus = Bus.objects.create(
+            licence_plate="test", number_of_seats=1, brand="asldf", company=company
+        )
+        self.start_city = City.objects.create(
+            city="Київ", region="Київська", country="Україна"
+        )
+        self.end_city = City.objects.create(
+            city="Прилуки", region="Київська", country="Україна"
+        )
+        self.departure_station = Station.objects.create(
+            station="Гулька",
+            street_type="Вулиця",
+            street="Котляра",
+            number=12,
+            city=self.start_city,
+        )
+        self.arrival_station = Station.objects.create(
+            station="Школа",
+            street_type="Вулиця",
+            street="Шевченка",
+            number=12 - 13,
+            city=self.end_city,
+        )
+        payload = {
+            "price": 200,
+            "bus": self.bus,
+            "departure_station": self.departure_station,
+            "arrival_station": self.arrival_station,
+            "start_point": self.start_city,
+            "end_point": self.end_city,
+        }
+        self.trip = Trip.objects.create(
+            timedate_departure=datetime.strptime(
+                f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+            ),
+            timedate_arrival=datetime.strptime(
+                f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+            ),
+            **payload,
+        )
 
     def test_create_user_success(self):
         """Test creating a user is successful."""
@@ -203,12 +255,57 @@ class PublicUserApiTests(TestCase):
     def test_retrieve_trip_success(self):
         """Test retrieve trip is success."""
         query_params = [
-            {"end_city_id": "1", "start_city_id": "2", "date": "2024-02-18"},
-            {"end_city_id": "1", "start_city_id": "2", "date": "2024-02-18"},
+            {"end_city_id": "1", "start_city_id": "2", "date": datetime.now().date()},
+            {"end_city_id": "1", "start_city_id": "2", "date": datetime.now().date()},
         ]
         for param in query_params:
             res = self.client.get(TRIP_URL, param)
             self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_trip_error(self):
+        """Test that retrieve trip with past date return error."""
+        res = self.client.get(
+            TRIP_URL, {"end_city_id": "1", "start_city_id": "2", "date": "2024-02-18"}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_not_retrieve_full_trip(self):
+        """Test that trip not returned if there is no seats left."""
+        res = self.client.get(
+            TRIP_URL,
+            {
+                "end_city_id": self.trip.end_point.pk,
+                "start_city_id": self.trip.start_point.pk,
+                "date": datetime.strptime(
+                    f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+                ).date(),
+            },
+        )
+
+        self.assertNotEqual([], res.data)
+
+        payload = {
+            "first_name": "Grande",
+            "last_name": "Polish",
+            "returned": False,
+            "user": self.user,
+            "trip": self.trip,
+        }
+        Ticket.objects.create(**payload)
+
+        res = self.client.get(
+            TRIP_URL,
+            {
+                "end_city_id": self.trip.end_point.pk,
+                "start_city_id": self.trip.start_point.pk,
+                "date": datetime.strptime(
+                    f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+                ).date(),
+            },
+        )
+
+        self.assertEqual([], res.data)
 
 
 class PrivateUserApiTests(TestCase):
@@ -256,8 +353,6 @@ class PrivateUserApiTests(TestCase):
             city=self.end_city,
         )
         payload = {
-            "timedate_departure": f"{timezone.now().date()} 23:59:59",
-            "timedate_arrival": f"{timezone.now().date()} 23:59:59",
             "price": 200,
             "bus": self.bus,
             "departure_station": self.departure_station,
@@ -265,7 +360,24 @@ class PrivateUserApiTests(TestCase):
             "start_point": self.start_city,
             "end_point": self.end_city,
         }
-        self.trip = Trip.objects.create(**payload)
+        self.trip = Trip.objects.create(
+            timedate_departure=datetime.strptime(
+                f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+            ),
+            timedate_arrival=datetime.strptime(
+                f"{timezone.now().date()} 23:59:59", "%Y-%m-%d %H:%M:%S"
+            ),
+            **payload,
+        )
+        self.past_trip = Trip.objects.create(
+            timedate_departure=datetime.strptime(
+                "2024-02-02 10:00:00", "%Y-%m-%d %H:%M:%S"
+            ),
+            timedate_arrival=datetime.strptime(
+                "2024-02-02 12:00:00", "%Y-%m-%d %H:%M:%S"
+            ),
+            **payload,
+        )
 
     def test_retrieve_profile_success(self):
         """Test retrieving profile for logged in user."""
@@ -334,3 +446,61 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["first_name"], "updated")
+
+    def test_return_ticket_success(self):
+        """Test ticket return is successful."""
+        payload = {
+            "first_name": "Grande",
+            "last_name": "Polish",
+            "returned": False,
+            "user": self.user,
+            "trip": self.trip,
+        }
+        ticket = Ticket.objects.create(**payload)
+        res = self.client.patch(
+            reverse("api:ticket-detail", kwargs={"pk": ticket.pk}),
+            data={"returned": "True"},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["returned"], True)
+
+    def test_ticket_past_trip_error(self):
+        """Test error returned when trying to create a new ticket with past trip."""
+        res = self.client.post(
+            TICKET_URL,
+            {
+                "first_name": "Andrii",
+                "last_name": "Obiz",
+                "trip": self.past_trip.pk,
+                "returned": False,
+            },
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", res.data)
+
+    def test_ticket_not_enough_seats_error(self):
+        """Test error returned when there is no free seats in the bus."""
+        payload = {
+            "first_name": "Grande",
+            "last_name": "Polish",
+            "returned": False,
+            "user": self.user,
+            "trip": self.trip,
+        }
+        Ticket.objects.create(**payload)
+        res = self.client.post(
+            TICKET_URL,
+            {
+                "first_name": "Grande",
+                "last_name": "Polish",
+                "returned": False,
+                "user": self.user,
+                "trip": self.trip.pk,
+            },
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", res.data)
