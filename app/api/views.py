@@ -233,7 +233,7 @@ class ManagePartnerView(generics.RetrieveUpdateAPIView):
 
 
 class BusViewSet(viewsets.ModelViewSet):
-    """ViewSet for company's buses."""
+    """Get, create and manage company's buses."""
 
     serializer_class = BusSerializer
     authentication_classes = [authentication.TokenAuthentication]
@@ -284,7 +284,7 @@ class ListCreateStationView(generics.ListCreateAPIView):
     )
 )
 class TripPartnerViewSet(viewsets.ModelViewSet):
-    """ViewSet for company's trips."""
+    """Get, create and manage company's trips."""
 
     serializer_class = TripSerializer
     authentication_classes = [authentication.TokenAuthentication]
@@ -339,7 +339,14 @@ class TripPartnerViewSet(viewsets.ModelViewSet):
 
 
 class CityView(generics.ListAPIView):
-    """List all cities."""
+    """List of all cities."""
 
     serializer_class = CitySerializer
     queryset = City.objects.all()
+
+
+class TripView(generics.RetrieveAPIView):
+    """Get a trip by it's id."""
+
+    serializer_class = TripSerializer
+    queryset = Trip.objects.all()

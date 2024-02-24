@@ -31,4 +31,5 @@ urlpatterns = [
         RetrieveUpdateTicketUserView.as_view(),
         name="ticket-detail",
     ),
+    path("api/v1/trip/<int:pk>/", TripView.as_view(), name="trip"),
 ]
