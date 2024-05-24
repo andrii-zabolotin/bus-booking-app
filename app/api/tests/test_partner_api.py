@@ -66,7 +66,7 @@ class PublicPartnerApiTests(TestCase):
                 "company_name": "Partner Company",
             },
             "user": {
-                "phone": "+380669057079",
+                "phone": "+380669057777",
                 "email": "test@gmail.com",
                 "password": "testpass123",
             },
@@ -98,7 +98,7 @@ class PublicPartnerApiTests(TestCase):
                 "company_name": "Partner Company",
             },
             "user": {
-                "phone": "+380669057079",
+                "phone": "+380669057777",
                 "email": "test@gmail.com",
                 "password": "testpass123",
             },
@@ -128,7 +128,7 @@ class PublicPartnerApiTests(TestCase):
                 "company_name": "Partner Company",
             },
             "user": {
-                "phone": "+380669057079",
+                "phone": "+380669057777",
                 "email": "test@gmail.com",
                 "password": "testpass123",
             },
@@ -156,7 +156,7 @@ class PrivateUserApiTests(TestCase):
                 "company_name": "Partner Company",
             },
             "user": {
-                "phone": "+380669057079",
+                "phone": "+380669057777",
                 "email": "test@gmail.com",
                 "password": "testpass123",
             },

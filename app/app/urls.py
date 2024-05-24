@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
@@ -22,13 +23,14 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from app import settings
 from core.views import pageForbidden, AjaxGetStationsView, pageNotFound
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
-        "api/docs/",
+        "api/v1/docs/",
         SpectacularSwaggerView.as_view(url_name="api-schema"),
         name="api-docs",
     ),
@@ -39,6 +41,11 @@ urlpatterns = [
     path("select2/", include("django_select2.urls")),
     path("ajax/get_stations/", AjaxGetStationsView.as_view(), name="ajax_get_stations"),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns = [path("__debug__/", include("debug_toolbar.urls"))] + urlpatterns
 
 handler403 = pageForbidden
 handler404 = pageNotFound
